@@ -80,6 +80,117 @@ Die Anwendung funktioniert in allen modernen Browsern:
 - Firefox (neueste 2 Versionen)
 - Safari (neueste 2 Versionen)
 
+## Kubernetes Deployment
+
+Die Anwendung kann in einer Kubernetes-Umgebung deployed werden.
+
+### Voraussetzungen
+
+- Docker installiert und konfiguriert
+- Zugriff auf eine Container Registry (Docker Hub, GHCR, etc.)
+- kubectl installiert und mit dem Cluster verbunden
+- Nginx Ingress Controller im Cluster (optional, für Ingress)
+
+### 1. Docker Image bauen und pushen
+
+```bash
+# Image bauen
+docker build -t your-registry/golf-handicap-tracker:latest .
+
+# Image testen (optional)
+docker run -p 8080:80 your-registry/golf-handicap-tracker:latest
+
+# Image pushen
+docker push your-registry/golf-handicap-tracker:latest
+```
+
+### 2. Kubernetes Manifeste anpassen
+
+Passen Sie die Werte in `k8s/deployment.yaml` an:
+- Ersetzen Sie `your-registry/golf-handicap-tracker:latest` mit Ihrer Image-URL
+
+Passen Sie `k8s/ingress.yaml` an:
+- Ändern Sie `golf-handicap.example.com` zu Ihrer Domain
+- Kommentieren Sie TLS-Konfiguration ein, falls gewünscht
+
+### 3. Deployment mit kubectl
+
+```bash
+# Alle Ressourcen deployen
+kubectl apply -f k8s/
+
+# Oder mit Kustomize
+kubectl apply -k k8s/
+
+# Status überprüfen
+kubectl get deployments
+kubectl get pods
+kubectl get services
+kubectl get ingress
+```
+
+### 4. Deployment verifizieren
+
+```bash
+# Logs anzeigen
+kubectl logs -l app=golf-handicap-tracker
+
+# Pod-Details anzeigen
+kubectl describe pod -l app=golf-handicap-tracker
+
+# Port-Forward für lokalen Test (ohne Ingress)
+kubectl port-forward svc/golf-handicap-tracker 8080:80
+# Öffnen Sie http://localhost:8080
+```
+
+### 5. Update deployen
+
+```bash
+# Neues Image bauen und pushen
+docker build -t your-registry/golf-handicap-tracker:v1.1.0 .
+docker push your-registry/golf-handicap-tracker:v1.1.0
+
+# Deployment aktualisieren
+kubectl set image deployment/golf-handicap-tracker \
+  golf-handicap-tracker=your-registry/golf-handicap-tracker:v1.1.0
+
+# Rollout-Status überwachen
+kubectl rollout status deployment/golf-handicap-tracker
+```
+
+### 6. Skalierung
+
+```bash
+# Anzahl der Replicas ändern
+kubectl scale deployment/golf-handicap-tracker --replicas=5
+
+# Horizontal Pod Autoscaler (optional)
+kubectl autoscale deployment golf-handicap-tracker \
+  --cpu-percent=70 --min=3 --max=10
+```
+
+### Kubernetes-Ressourcen
+
+Die folgenden Kubernetes-Ressourcen werden deployed:
+
+- **Deployment**: 3 Replicas mit Rolling Update-Strategie
+- **Service**: ClusterIP Service auf Port 80
+- **Ingress**: Nginx Ingress für externen Zugriff (optional)
+
+### Health Checks
+
+Die Anwendung bietet einen Health-Check-Endpoint:
+- **URL**: `/health`
+- **Liveness Probe**: Prüft alle 30 Sekunden
+- **Readiness Probe**: Prüft alle 10 Sekunden
+
+### Ressourcen-Anforderungen
+
+- **Requests**: 64Mi RAM, 100m CPU
+- **Limits**: 128Mi RAM, 200m CPU
+
+Diese Werte können in `k8s/deployment.yaml` angepasst werden.
+
 ## Lizenz
 
 MIT
