@@ -3,39 +3,61 @@
 # Variablen (überschreibbar mit Umgebungsvariablen)
 REGISTRY ?= your-registry
 IMAGE_NAME ?= golf-handicap-tracker
+BACKEND_IMAGE_NAME ?= golf-handicap-backend
 VERSION ?= latest
 NAMESPACE ?= default
+INGRESS ?= traefik
 
-# Vollständiger Image-Name
-IMAGE = $(REGISTRY)/$(IMAGE_NAME):$(VERSION)
+# Vollständige Image-Namen
+FRONTEND_IMAGE = $(REGISTRY)/$(IMAGE_NAME):$(VERSION)
+BACKEND_IMAGE = $(REGISTRY)/$(BACKEND_IMAGE_NAME):$(VERSION)
 
 help: ## Zeigt diese Hilfe an
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-build: ## Docker Image bauen
-	@echo "Building Docker image: $(IMAGE)"
-	docker build -t $(IMAGE) .
-	@echo "✓ Image erfolgreich gebaut: $(IMAGE)"
+build: ## Docker Images bauen (Frontend + Backend)
+	@echo "Building Frontend image: $(FRONTEND_IMAGE)"
+	docker build -t $(FRONTEND_IMAGE) .
+	@echo "Building Backend image: $(BACKEND_IMAGE)"
+	docker build -t $(BACKEND_IMAGE) ./server
+	@echo "✓ Images erfolgreich gebaut"
+
+build-frontend: ## Nur Frontend Image bauen
+	@echo "Building Frontend image: $(FRONTEND_IMAGE)"
+	docker build -t $(FRONTEND_IMAGE) .
+	@echo "✓ Frontend Image erfolgreich gebaut"
+
+build-backend: ## Nur Backend Image bauen
+	@echo "Building Backend image: $(BACKEND_IMAGE)"
+	docker build -t $(BACKEND_IMAGE) ./server
+	@echo "✓ Backend Image erfolgreich gebaut"
 
 test-local: build ## Image lokal testen
 	@echo "Starte lokalen Test auf Port 8080..."
 	docker run --rm -p 8080:80 $(IMAGE)
 
-push: ## Docker Image in Registry pushen
-	@echo "Pushing image to registry: $(IMAGE)"
-	docker push $(IMAGE)
-	@echo "✓ Image erfolgreich gepusht: $(IMAGE)"
+push: ## Docker Images in Registry pushen (Frontend + Backend)
+	@echo "Pushing Frontend image: $(FRONTEND_IMAGE)"
+	docker push $(FRONTEND_IMAGE)
+	@echo "Pushing Backend image: $(BACKEND_IMAGE)"
+	docker push $(BACKEND_IMAGE)
+	@echo "✓ Images erfolgreich gepusht"
 
 build-push: build push ## Build und Push in einem Schritt
 
-deploy: ## In Kubernetes deployen
-	@echo "Deploying to Kubernetes namespace: $(NAMESPACE)"
-	kubectl apply -f k8s/ -n $(NAMESPACE)
+deploy: ## In Kubernetes deployen mit gewähltem Ingress (INGRESS=traefik|nginx)
+	@echo "Deploying to Kubernetes namespace: $(NAMESPACE) with $(INGRESS) ingress"
+	kubectl apply -k k8s/overlays/$(INGRESS)/ -n $(NAMESPACE)
 	@echo "✓ Deployment erfolgreich"
 
-deploy-kustomize: ## Deploy mit Kustomize
-	@echo "Deploying with Kustomize to namespace: $(NAMESPACE)"
-	kubectl apply -k k8s/ -n $(NAMESPACE)
+deploy-traefik: ## Deploy mit Traefik Ingress
+	@echo "Deploying with Traefik Ingress to namespace: $(NAMESPACE)"
+	kubectl apply -k k8s/overlays/traefik/ -n $(NAMESPACE)
+	@echo "✓ Deployment erfolgreich"
+
+deploy-nginx: ## Deploy mit Nginx Ingress
+	@echo "Deploying with Nginx Ingress to namespace: $(NAMESPACE)"
+	kubectl apply -k k8s/overlays/nginx/ -n $(NAMESPACE)
 	@echo "✓ Deployment erfolgreich"
 
 rollout: ## Rollout-Status anzeigen
@@ -86,5 +108,66 @@ update: build-push ## Build, Push und Update im Cluster
 dev: ## Lokaler Entwicklungsserver
 	npm run dev
 
-install: ## NPM Dependencies installieren
+install: ## NPM Dependencies installieren (Frontend + Backend)
+	@echo "Installing frontend dependencies..."
 	npm install
+	@echo "Installing backend dependencies..."
+	cd server && npm install
+	@echo "✓ Dependencies installiert"
+
+# Docker Compose Commands
+compose-up: ## Starte mit Docker Compose (Development)
+	@echo "Starting application with Docker Compose..."
+	docker-compose up -d
+	@echo "✓ Application running at:"
+	@echo "  Frontend: http://localhost:5173"
+	@echo "  Backend:  http://localhost:3001"
+
+compose-down: ## Stoppe Docker Compose
+	@echo "Stopping Docker Compose..."
+	docker-compose down
+	@echo "✓ Stopped"
+
+compose-logs: ## Zeige Docker Compose Logs
+	docker-compose logs -f
+
+compose-restart: ## Neustarten mit Docker Compose
+	docker-compose restart
+
+compose-build: ## Rebuild Docker Compose Images
+	docker-compose build
+
+# Backend-spezifische Commands
+backend-logs: ## Backend Logs anzeigen
+	kubectl logs -l app=golf-handicap-backend -n $(NAMESPACE) --tail=100 -f
+
+backend-shell: ## Shell im Backend Pod öffnen
+	kubectl exec -it deployment/golf-handicap-backend -n $(NAMESPACE) -- sh
+
+backend-port-forward: ## Port-Forward für Backend (Port 3001)
+	@echo "Backend Port-Forward aktiv auf http://localhost:3001"
+	kubectl port-forward svc/golf-handicap-backend 3001:3001 -n $(NAMESPACE)
+
+# Database Commands
+db-backup: ## Datenbank sichern
+	@POD=$$(kubectl get pod -l app=golf-handicap-backend -n $(NAMESPACE) -o jsonpath='{.items[0].metadata.name}'); \
+	BACKUP_FILE="backup-$$(date +%Y%m%d-%H%M%S).db"; \
+	echo "Backing up database to $$BACKUP_FILE..."; \
+	kubectl cp $(NAMESPACE)/$$POD:/app/data/golf-handicap.db ./$$BACKUP_FILE; \
+	echo "✓ Backup saved to $$BACKUP_FILE"
+
+db-restore: ## Datenbank wiederherstellen (nutze: make db-restore FILE=backup.db)
+	@if [ -z "$(FILE)" ]; then \
+		echo "Fehler: FILE nicht gesetzt. Beispiel: make db-restore FILE=backup.db"; \
+		exit 1; \
+	fi
+	@POD=$$(kubectl get pod -l app=golf-handicap-backend -n $(NAMESPACE) -o jsonpath='{.items[0].metadata.name}'); \
+	echo "Restoring database from $(FILE)..."; \
+	kubectl cp $(FILE) $(NAMESPACE)/$$POD:/app/data/golf-handicap.db; \
+	kubectl rollout restart deployment/golf-handicap-backend -n $(NAMESPACE); \
+	echo "✓ Database restored and backend restarted"
+
+# Storage Commands
+pvc-status: ## PVC Status anzeigen
+	kubectl get pvc -n $(NAMESPACE) golf-handicap-data
+	kubectl describe pvc -n $(NAMESPACE) golf-handicap-data

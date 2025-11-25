@@ -7,8 +7,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: longhorn
   resources:
     requests:
       storage: 1Gi
-  # Optional: StorageClass angeben
-  # storageClassName: fast-ssd
