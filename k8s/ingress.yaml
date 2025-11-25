@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: golf-handicap-tracker
+  labels:
+    app: golf-handicap-tracker
+  annotations:
+    # Nginx Ingress Controller Annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+    # Cert-Manager Annotation (optional, für automatische TLS-Zertifikate)
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # Rate Limiting (optional)
+    # nginx.ingress.kubernetes.io/limit-rps: "100"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: golf-handicap.example.com  # Ändern Sie dies zu Ihrer Domain
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: golf-handicap-backend
+            port:
+              number: 3001
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: golf-handicap-tracker
+            port:
+              number: 80
+  # TLS-Konfiguration (optional)
+  # tls:
+  # - hosts:
+  #   - golf-handicap.example.com
+  #   secretName: golf-handicap-tracker-tls

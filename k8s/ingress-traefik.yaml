@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: golf-handicap-tracker
+  labels:
+    app: golf-handicap-tracker
+  annotations:
+    # Traefik Ingress Annotations
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+
+    # Optional: TLS mit cert-manager
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # Middleware für bessere Sicherheit (optional)
+    # traefik.ingress.kubernetes.io/router.middlewares: default-security-headers@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: golf-handicap.example.com  # Ändern Sie dies zu Ihrer Domain
+    http:
+      paths:
+      # Backend API
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: golf-handicap-backend
+            port:
+              number: 3001
+      # Frontend
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: golf-handicap-tracker
+            port:
+              number: 80
+  # TLS-Konfiguration
+  tls:
+  - hosts:
+    - golf-handicap.example.com
+    secretName: golf-handicap-tracker-tls

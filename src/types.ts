@@ -1,3 +1,5 @@
+export type RoundType = 'official' | 'training';
+
 export interface GolfRound {
   id: string;
   date: string;
@@ -6,7 +8,9 @@ export interface GolfRound {
   slopeRating: number;
   score: number;
   par: number;
+  roundType: RoundType;
   differentialScore?: number;
+  notes?: string;
 }
 
 export interface HandicapHistory {

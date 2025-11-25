@@ -15,6 +15,8 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
     slopeRating: '113',
     score: '',
     par: '72',
+    roundType: 'official' as 'official' | 'training',
+    notes: '',
   });
 
   const handleSubmit = (e: FormEvent) => {
@@ -28,6 +30,8 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
       slopeRating: parseInt(formData.slopeRating),
       score: parseInt(formData.score),
       par: parseInt(formData.par),
+      roundType: formData.roundType,
+      notes: formData.notes || undefined,
     };
 
     onAddRound(newRound);
@@ -38,6 +42,8 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
       slopeRating: '113',
       score: '',
       par: '72',
+      roundType: 'official',
+      notes: '',
     });
     setIsOpen(false);
   };
@@ -140,6 +146,53 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
             value={formData.par}
             onChange={(e) => setFormData({ ...formData, par: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golf-green-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Rundentyp
+          </label>
+          <div className="flex gap-4">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                value="official"
+                checked={formData.roundType === 'official'}
+                onChange={(e) => setFormData({ ...formData, roundType: e.target.value as 'official' | 'training' })}
+                className="w-4 h-4 text-golf-green-600 focus:ring-golf-green-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Offizielle Runde <span className="text-xs text-gray-500">(zählt für Handicap)</span>
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                value="training"
+                checked={formData.roundType === 'training'}
+                onChange={(e) => setFormData({ ...formData, roundType: e.target.value as 'official' | 'training' })}
+                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Trainingsrunde <span className="text-xs text-gray-500">("Was-wäre-wenn")</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Notizen (optional)
+          </label>
+          <textarea
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            placeholder="z.B. Wetterbedingungen, Besonderheiten..."
+            rows={3}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golf-green-500 focus:border-transparent resize-none"
           />
         </div>
       </div>

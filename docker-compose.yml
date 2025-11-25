@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Backend API Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DB_PATH=/app/data/golf-handicap.db
+      - CORS_ORIGIN=http://localhost:5173
+      - NODE_ENV=development
+    volumes:
+      - golf-data:/app/data
+      - ./server/src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # Frontend (Vite Dev Server)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+    volumes:
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+      - ./index.html:/app/index.html:ro
+    depends_on:
+      - backend
+    command: npm run dev -- --host
+
+volumes:
+  golf-data:
+    driver: local
