@@ -44,6 +44,16 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
                     <h3 className="text-lg font-semibold text-gray-800">
                       {round.courseName}
                     </h3>
+                    {round.roundType === 'training' && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Training
+                      </span>
+                    )}
+                    {round.roundType === 'official' && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-golf-green-100 text-golf-green-800">
+                        Offiziell
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">

@@ -20,6 +20,13 @@ spec:
   - host: golf-handicap.example.com  # Ändern Sie dies zu Ihrer Domain
     http:
       paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: golf-handicap-backend
+            port:
+              number: 3001
       - path: /
         pathType: Prefix
         backend:

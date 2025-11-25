@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: golf-handicap-data
+  labels:
+    app: golf-handicap
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  # Optional: StorageClass angeben
+  # storageClassName: fast-ssd

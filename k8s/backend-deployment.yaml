@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golf-handicap-backend
+  labels:
+    app: golf-handicap-backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: golf-handicap-backend
+  template:
+    metadata:
+      labels:
+        app: golf-handicap-backend
+    spec:
+      containers:
+      - name: backend
+        image: your-registry/golf-handicap-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+          name: http
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "3001"
+        - name: DB_PATH
+          value: "/app/data/golf-handicap.db"
+        - name: CORS_ORIGIN
+          value: "*"
+        - name: NODE_ENV
+          value: "production"
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: false
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: golf-handicap-data
+      securityContext:
+        fsGroup: 1000

@@ -5,6 +5,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Build-Zeit Argument für API URL
+ARG VITE_API_URL=http://localhost:3001/api
+ENV VITE_API_URL=$VITE_API_URL
+
 # Kopiere Package-Dateien und installiere Dependencies
 COPY package*.json ./
 RUN npm ci --only=production --ignore-scripts

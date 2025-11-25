@@ -6,13 +6,17 @@ Eine moderne Web-Anwendung zum Tracking Ihres Golf-Handicaps. Verfolgen Sie Ihre
 
 - 📊 **Handicap-Berechnung** nach World Handicap System (WHS)
 - 📈 **Visuelle Darstellung** Ihrer Handicap-Entwicklung
-- 💾 **Automatische Speicherung** im Browser (LocalStorage)
+- 💾 **Serverseitige SQLite-Datenbank** für sichere Datenspeicherung
+- 🎯 **Offizielle & Trainingsrunden** - Unterscheiden Sie zwischen offiziellen Runden und "Was-wäre-wenn" Szenarien
+- 🧮 **Was-wäre-wenn Modus** - Sehen Sie, wie Trainingsrunden Ihr Handicap beeinflussen würden
 - 📱 **Responsive Design** für Desktop, Tablet und Mobile
 - 🎯 **Detaillierte Rundenübersicht** mit Score Differentials
+- 📝 **Notizen zu Runden** - Halten Sie Wetterbedingungen und Besonderheiten fest
 - ✨ **Modernes UI** mit TailwindCSS
 
 ## Technologie-Stack
 
+### Frontend
 - **React 18** - Modern UI-Framework
 - **TypeScript** - Type-sichere Entwicklung
 - **Vite** - Schneller Build-Prozess
@@ -20,20 +24,52 @@ Eine moderne Web-Anwendung zum Tracking Ihres Golf-Handicaps. Verfolgen Sie Ihre
 - **Recharts** - Datenvisualisierung
 - **Lucide React** - Moderne Icons
 
+### Backend
+- **Node.js + Express** - RESTful API Server
+- **SQLite (better-sqlite3)** - Leichtgewichtige, serverlose Datenbank
+- **Helmet** - Security Middleware
+- **CORS** - Cross-Origin Resource Sharing
+
 ## Installation
 
+### Schnellstart mit Docker Compose (empfohlen)
+
 ```bash
-# Abhängigkeiten installieren
+# Starte Frontend + Backend mit einem Befehl
+docker-compose up
+
+# Frontend: http://localhost:5173
+# Backend API: http://localhost:3001
+```
+
+### Manuelle Installation
+
+#### Backend
+
+```bash
+cd server
 npm install
 
-# Entwicklungsserver starten
+# Erstelle .env Datei
+cp .env.example .env
+
+# Starte Backend-Server
+npm start
+```
+
+#### Frontend
+
+```bash
+npm install
+
+# Erstelle .env Datei
+cp .env.example .env
+
+# Starte Entwicklungsserver
 npm run dev
 
 # Production Build erstellen
 npm run build
-
-# Preview des Production Builds
-npm run preview
 ```
 
 ## Verwendung
@@ -45,12 +81,21 @@ npm run preview
    - Slope Rating
    - Ihr Score
    - Par des Platzes
+   - **Rundentyp**: Wählen Sie zwischen:
+     - **Offizielle Runde**: Zählt für Ihr offizielles Handicap
+     - **Trainingsrunde**: "Was-wäre-wenn" Szenario, zählt nicht für Handicap
+   - Optionale Notizen (z.B. Wetterbedingungen)
 
 2. **Handicap verfolgen**: Ihr aktuelles Handicap wird automatisch berechnet und auf der Hauptkarte angezeigt.
 
-3. **Entwicklung analysieren**: Das Diagramm zeigt Ihre Handicap-Entwicklung über alle gespielten Runden.
+3. **"Was-wäre-wenn" Szenarien**:
+   - Trainingsrunden werden separat erfasst
+   - Sehen Sie in der blauen Karte, wie Ihr Handicap aussehen würde, wenn Trainingsrunden zählen würden
+   - Perfekt zum Testen von Verbesserungen!
 
-4. **Runden verwalten**: In der Rundenliste sehen Sie alle Ihre Runden mit detaillierten Informationen. Runden können jederzeit gelöscht werden.
+4. **Entwicklung analysieren**: Das Diagramm zeigt Ihre Handicap-Entwicklung über alle offiziellen Runden.
+
+5. **Runden verwalten**: In der Rundenliste sehen Sie alle Runden mit Badges (Offiziell/Training). Runden können jederzeit gelöscht werden.
 
 ## Handicap-Berechnung
 
@@ -71,7 +116,23 @@ Die Anzahl der verwendeten Runden variiert je nach Anzahl der gespielten Runden:
 
 ## Datenspeicherung
 
-Alle Daten werden lokal im Browser gespeichert (LocalStorage). Es werden keine Daten an externe Server gesendet. Ihre Daten bleiben vollständig privat auf Ihrem Gerät.
+Alle Daten werden serverseitig in einer SQLite-Datenbank gespeichert:
+- **Persistent**: Daten bleiben auch nach Browser-Neuladen erhalten
+- **Sicher**: SQLite ist eine bewährte, robuste Datenbank
+- **Portabel**: Die Datenbankdatei kann einfach gesichert werden
+- **Lokal**: Bei lokaler Installation bleiben Ihre Daten auf Ihrem Server
+
+### API Endpoints
+
+Die Anwendung nutzt folgende REST-API Endpoints:
+
+- `GET /api/rounds` - Alle Runden abrufen (mit optionalem Type-Filter)
+- `GET /api/rounds/:id` - Einzelne Runde abrufen
+- `POST /api/rounds` - Neue Runde erstellen
+- `PUT /api/rounds/:id` - Runde aktualisieren
+- `DELETE /api/rounds/:id` - Runde löschen
+- `GET /api/statistics` - Statistiken abrufen
+- `GET /health` - Health Check
 
 ## Browser-Kompatibilität
 

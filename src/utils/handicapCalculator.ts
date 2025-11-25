@@ -11,6 +11,7 @@ export function calculateDifferential(round: GolfRound): number {
 
 /**
  * Berechnet das Handicap Index basierend auf den besten Runden
+ * WICHTIG: Nur offizielle Runden werden berücksichtigt!
  * Vereinfachte WHS-Methode:
  * - 1-5 Runden: beste 1
  * - 6-8 Runden: beste 2
@@ -22,11 +23,14 @@ export function calculateDifferential(round: GolfRound): number {
  * - 20+ Runden: beste 8
  */
 export function calculateHandicapIndex(rounds: GolfRound[]): number {
-  if (rounds.length === 0) return 54.0;
+  // Nur offizielle Runden für Handicap-Berechnung verwenden
+  const officialRounds = rounds.filter(r => r.roundType === 'official');
 
-  const roundsWithDifferentials = rounds.map(round => ({
+  if (officialRounds.length === 0) return 54.0;
+
+  const roundsWithDifferentials = officialRounds.map(round => ({
     ...round,
-    differentialScore: calculateDifferential(round)
+    differentialScore: round.differentialScore || calculateDifferential(round)
   }));
 
   const sortedDifferentials = roundsWithDifferentials
@@ -34,13 +38,13 @@ export function calculateHandicapIndex(rounds: GolfRound[]): number {
     .sort((a, b) => a - b);
 
   let numberOfRoundsToUse = 1;
-  if (rounds.length >= 6) numberOfRoundsToUse = 2;
-  if (rounds.length >= 9) numberOfRoundsToUse = 3;
-  if (rounds.length >= 12) numberOfRoundsToUse = 4;
-  if (rounds.length >= 15) numberOfRoundsToUse = 5;
-  if (rounds.length >= 17) numberOfRoundsToUse = 6;
-  if (rounds.length >= 19) numberOfRoundsToUse = 7;
-  if (rounds.length >= 20) numberOfRoundsToUse = 8;
+  if (officialRounds.length >= 6) numberOfRoundsToUse = 2;
+  if (officialRounds.length >= 9) numberOfRoundsToUse = 3;
+  if (officialRounds.length >= 12) numberOfRoundsToUse = 4;
+  if (officialRounds.length >= 15) numberOfRoundsToUse = 5;
+  if (officialRounds.length >= 17) numberOfRoundsToUse = 6;
+  if (officialRounds.length >= 19) numberOfRoundsToUse = 7;
+  if (officialRounds.length >= 20) numberOfRoundsToUse = 8;
 
   const bestDifferentials = sortedDifferentials.slice(0, numberOfRoundsToUse);
   const average = bestDifferentials.reduce((sum, diff) => sum + diff, 0) / bestDifferentials.length;
@@ -51,10 +55,14 @@ export function calculateHandicapIndex(rounds: GolfRound[]): number {
 
 /**
  * Erstellt eine Handicap-Verlaufshistorie
+ * WICHTIG: Nur offizielle Runden werden berücksichtigt!
  */
 export function generateHandicapHistory(rounds: GolfRound[]): HandicapHistory[] {
   const history: HandicapHistory[] = [];
-  const sortedRounds = [...rounds].sort((a, b) =>
+
+  // Nur offizielle Runden für Historie verwenden
+  const officialRounds = rounds.filter(r => r.roundType === 'official');
+  const sortedRounds = [...officialRounds].sort((a, b) =>
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
@@ -73,16 +81,12 @@ export function generateHandicapHistory(rounds: GolfRound[]): HandicapHistory[] 
 }
 
 /**
- * Speichert Runden im LocalStorage
+ * Berechnet "Was-wäre-wenn" Handicap mit Trainingsrunden
  */
-export function saveRounds(rounds: GolfRound[]): void {
-  localStorage.setItem('golf-rounds', JSON.stringify(rounds));
-}
+export function calculateWhatIfHandicap(rounds: GolfRound[], includeTraining: boolean = true): number {
+  const relevantRounds = includeTraining
+    ? rounds
+    : rounds.filter(r => r.roundType === 'official');
 
-/**
- * Lädt Runden aus dem LocalStorage
- */
-export function loadRounds(): GolfRound[] {
-  const data = localStorage.getItem('golf-rounds');
-  return data ? JSON.parse(data) : [];
+  return calculateHandicapIndex(relevantRounds.map(r => ({ ...r, roundType: 'official' })));
 }
