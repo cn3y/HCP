@@ -11,7 +11,7 @@ ENV VITE_API_URL=$VITE_API_URL
 
 # Kopiere Package-Dateien und installiere Dependencies
 COPY package*.json ./
-RUN npm ci --only=production --ignore-scripts
+RUN npm ci
 
 # Kopiere Source-Code und baue die Anwendung
 COPY . .
