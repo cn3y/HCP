@@ -14,7 +14,7 @@ export function WhatIfCard({ allRounds, currentHandicap }: WhatIfCardProps) {
     return null;
   }
 
-  // Berechne Was-wäre-wenn Handicap (mit Trainingsrunden)
+  // Calculate what-if handicap (with training rounds)
   const whatIfHandicap = calculateWhatIfHandicap(allRounds, true);
   const difference = whatIfHandicap - currentHandicap;
   const absoluteDifference = Math.abs(difference);
@@ -32,21 +32,21 @@ export function WhatIfCard({ allRounds, currentHandicap }: WhatIfCardProps) {
       <div className="flex items-center gap-3 mb-4">
         <Calculator size={32} className="text-blue-100" />
         <div>
-          <h2 className="text-2xl font-bold">Was-wäre-wenn Szenario</h2>
+          <h2 className="text-2xl font-bold">What-If Scenario</h2>
           <p className="text-blue-100 text-sm">
-            {trainingRounds.length} {trainingRounds.length === 1 ? 'Trainingsrunde' : 'Trainingsrunden'} als offizielle Runden gerechnet
+            {trainingRounds.length} training {trainingRounds.length === 1 ? 'round' : 'rounds'} counted as official
           </p>
         </div>
       </div>
 
       <div className="flex items-center justify-between mt-6">
         <div>
-          <p className="text-blue-100 text-sm mb-2">Hypothetisches Handicap</p>
+          <p className="text-blue-100 text-sm mb-2">Hypothetical Handicap</p>
           <h3 className="text-5xl font-bold">{whatIfHandicap.toFixed(1)}</h3>
         </div>
 
         <div className="text-right">
-          <p className="text-blue-100 text-sm mb-2">Differenz zum aktuellen</p>
+          <p className="text-blue-100 text-sm mb-2">Difference from current</p>
           {trend === 'down' && (
             <div className="flex items-center gap-2 text-green-200">
               <TrendingDown size={28} />
@@ -70,9 +70,9 @@ export function WhatIfCard({ allRounds, currentHandicap }: WhatIfCardProps) {
 
       <div className="mt-6 pt-6 border-t border-blue-400">
         <p className="text-blue-100 text-sm">
-          {trend === 'down' && '💪 Ihre Trainingsrunden würden Ihr Handicap verbessern!'}
-          {trend === 'up' && '📈 Ihre Trainingsrunden würden Ihr Handicap verschlechtern'}
-          {trend === 'neutral' && '➡️ Ihre Trainingsrunden würden Ihr Handicap kaum verändern'}
+          {trend === 'down' && '💪 Your training rounds would improve your handicap!'}
+          {trend === 'up' && '📈 Your training rounds would worsen your handicap'}
+          {trend === 'neutral' && '➡️ Your training rounds would barely change your handicap'}
         </p>
       </div>
     </div>

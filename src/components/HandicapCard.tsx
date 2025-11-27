@@ -21,7 +21,7 @@ export function HandicapCard({ currentHandicap, previousHandicap, roundsPlayed }
     <div className="bg-gradient-to-br from-golf-green-600 to-golf-green-700 rounded-2xl shadow-xl p-8 text-white">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-golf-green-100 text-sm font-medium mb-2">Aktuelles Handicap</p>
+          <p className="text-golf-green-100 text-sm font-medium mb-2">Current Handicap</p>
           <h1 className="text-6xl font-bold">{currentHandicap.toFixed(1)}</h1>
         </div>
         <div className="text-right">
@@ -41,7 +41,7 @@ export function HandicapCard({ currentHandicap, previousHandicap, roundsPlayed }
       </div>
       <div className="mt-6 pt-6 border-t border-golf-green-500">
         <p className="text-golf-green-100 text-sm">
-          <span className="font-semibold text-white text-lg">{roundsPlayed}</span> gespielte Runden
+          <span className="font-semibold text-white text-lg">{roundsPlayed}</span> rounds played
         </p>
       </div>
     </div>

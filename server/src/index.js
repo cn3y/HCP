@@ -3,13 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { initDatabase, statements } = require('./database');
+const { statements } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
-// Initialisiere Datenbank
-initDatabase();
 
 // Middleware
 app.use(helmet());
@@ -21,8 +18,8 @@ app.use(express.json());
 
 // Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 Minuten
-  max: 100, // Max 100 Requests pro IP
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Max 100 requests per IP
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
@@ -34,7 +31,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 
-// GET /api/rounds - Alle Runden abrufen (mit optionalem Type-Filter)
+// GET /api/rounds - Fetch all rounds (with optional type filter)
 app.get('/api/rounds', (req, res) => {
   try {
     const { type } = req.query;
@@ -46,7 +43,7 @@ app.get('/api/rounds', (req, res) => {
       rounds = statements.getAllRounds.all();
     }
 
-    // Konvertiere zu Frontend-Format
+    // Convert to frontend format
     const formattedRounds = rounds.map(round => ({
       id: round.id,
       date: round.date,
@@ -67,7 +64,7 @@ app.get('/api/rounds', (req, res) => {
   }
 });
 
-// GET /api/rounds/:id - Einzelne Runde abrufen
+// GET /api/rounds/:id - Fetch single round
 app.get('/api/rounds/:id', (req, res) => {
   try {
     const round = statements.getRoundById.get(req.params.id);
@@ -97,7 +94,7 @@ app.get('/api/rounds/:id', (req, res) => {
   }
 });
 
-// POST /api/rounds - Neue Runde erstellen
+// POST /api/rounds - Create new round
 app.post('/api/rounds', (req, res) => {
   try {
     const {
@@ -112,7 +109,7 @@ app.post('/api/rounds', (req, res) => {
       notes = null
     } = req.body;
 
-    // Validierung
+    // Validation
     if (!id || !date || !courseName || !courseRating || !slopeRating || !score || !par) {
       return res.status(400).json({
         success: false,
@@ -127,11 +124,11 @@ app.post('/api/rounds', (req, res) => {
       });
     }
 
-    // Berechne Differential
+    // Calculate differential
     const differential = (113 / slopeRating) * (score - courseRating);
     const roundedDifferential = Math.round(differential * 10) / 10;
 
-    // Speichere Runde
+    // Save round
     statements.createRound.run(
       id,
       date,
@@ -166,7 +163,7 @@ app.post('/api/rounds', (req, res) => {
   }
 });
 
-// PUT /api/rounds/:id - Runde aktualisieren
+// PUT /api/rounds/:id - Update round
 app.put('/api/rounds/:id', (req, res) => {
   try {
     const {
@@ -180,17 +177,17 @@ app.put('/api/rounds/:id', (req, res) => {
       notes = null
     } = req.body;
 
-    // Prüfe ob Runde existiert
+    // Check if round exists
     const existing = statements.getRoundById.get(req.params.id);
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Round not found' });
     }
 
-    // Berechne Differential
+    // Calculate differential
     const differential = (113 / slopeRating) * (score - courseRating);
     const roundedDifferential = Math.round(differential * 10) / 10;
 
-    // Update Runde
+    // Update round
     statements.updateRound.run(
       date,
       courseName,
@@ -225,7 +222,7 @@ app.put('/api/rounds/:id', (req, res) => {
   }
 });
 
-// DELETE /api/rounds/:id - Runde löschen
+// DELETE /api/rounds/:id - Delete round
 app.delete('/api/rounds/:id', (req, res) => {
   try {
     const result = statements.deleteRound.run(req.params.id);
@@ -241,7 +238,7 @@ app.delete('/api/rounds/:id', (req, res) => {
   }
 });
 
-// GET /api/statistics - Statistiken abrufen
+// GET /api/statistics - Fetch statistics
 app.get('/api/statistics', (req, res) => {
   try {
     const stats = statements.getStatistics.all();

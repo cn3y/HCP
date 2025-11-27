@@ -11,7 +11,7 @@ export function HandicapChart({ history }: HandicapChartProps) {
   }
 
   const chartData = history.map(entry => ({
-    date: new Date(entry.date).toLocaleDateString('de-DE', {
+    date: new Date(entry.date).toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short'
     }),
@@ -21,7 +21,7 @@ export function HandicapChart({ history }: HandicapChartProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Handicap-Entwicklung</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Handicap Development</h2>
 
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={chartData}>
@@ -63,7 +63,7 @@ export function HandicapChart({ history }: HandicapChartProps) {
       </ResponsiveContainer>
 
       <div className="mt-4 text-sm text-gray-600 text-center">
-        {history.length} {history.length === 1 ? 'Datenpunkt' : 'Datenpunkte'} im Verlauf
+        {history.length} data {history.length === 1 ? 'point' : 'points'} in history
       </div>
     </div>
   );

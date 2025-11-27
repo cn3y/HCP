@@ -1,49 +1,47 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// Datenbank-Pfad (persistent im data-Verzeichnis)
+// Database path (persistent in data directory)
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../data/golf-handicap.db');
 
-// Erstelle data-Verzeichnis falls nicht vorhanden
+// Create data directory if it doesn't exist
 const fs = require('fs');
 const dataDir = path.dirname(DB_PATH);
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Initialisiere Datenbank
+// Initialize database
 const db = new Database(DB_PATH);
 
-// Aktiviere WAL-Modus für bessere Performance
+// Enable WAL mode for better performance
 db.pragma('journal_mode = WAL');
 
-// Erstelle Tabellen
-function initDatabase() {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS rounds (
-      id TEXT PRIMARY KEY,
-      date TEXT NOT NULL,
-      course_name TEXT NOT NULL,
-      course_rating REAL NOT NULL,
-      slope_rating INTEGER NOT NULL,
-      score INTEGER NOT NULL,
-      par INTEGER NOT NULL,
-      round_type TEXT NOT NULL CHECK(round_type IN ('official', 'training')),
-      differential_score REAL,
-      notes TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
+// Create tables immediately on module load
+db.exec(`
+  CREATE TABLE IF NOT EXISTS rounds (
+    id TEXT PRIMARY KEY,
+    date TEXT NOT NULL,
+    course_name TEXT NOT NULL,
+    course_rating REAL NOT NULL,
+    slope_rating INTEGER NOT NULL,
+    score INTEGER NOT NULL,
+    par INTEGER NOT NULL,
+    round_type TEXT NOT NULL CHECK(round_type IN ('official', 'training')),
+    differential_score REAL,
+    notes TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
 
-    CREATE INDEX IF NOT EXISTS idx_rounds_date ON rounds(date);
-    CREATE INDEX IF NOT EXISTS idx_rounds_type ON rounds(round_type);
-    CREATE INDEX IF NOT EXISTS idx_rounds_date_type ON rounds(date, round_type);
-  `);
+  CREATE INDEX IF NOT EXISTS idx_rounds_date ON rounds(date);
+  CREATE INDEX IF NOT EXISTS idx_rounds_type ON rounds(round_type);
+  CREATE INDEX IF NOT EXISTS idx_rounds_date_type ON rounds(date, round_type);
+`);
 
-  console.log('Database initialized successfully');
-}
+console.log('✅ Database initialized successfully');
 
-// Prepared Statements für bessere Performance
+// Prepared statements for better performance
 const statements = {
   getAllRounds: db.prepare('SELECT * FROM rounds ORDER BY date DESC'),
 
@@ -83,6 +81,5 @@ const statements = {
 
 module.exports = {
   db,
-  initDatabase,
   statements
 };
