@@ -1,23 +1,23 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// Datenbank-Pfad (persistent im data-Verzeichnis)
+// Database path (persistent in data directory)
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../data/golf-handicap.db');
 
-// Erstelle data-Verzeichnis falls nicht vorhanden
+// Create data directory if it doesn't exist
 const fs = require('fs');
 const dataDir = path.dirname(DB_PATH);
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Initialisiere Datenbank
+// Initialize database
 const db = new Database(DB_PATH);
 
-// Aktiviere WAL-Modus für bessere Performance
+// Enable WAL mode for better performance
 db.pragma('journal_mode = WAL');
 
-// Erstelle Tabellen sofort beim Laden des Moduls
+// Create tables immediately on module load
 db.exec(`
   CREATE TABLE IF NOT EXISTS rounds (
     id TEXT PRIMARY KEY,
@@ -41,7 +41,7 @@ db.exec(`
 
 console.log('✅ Database initialized successfully');
 
-// Prepared Statements für bessere Performance
+// Prepared statements for better performance
 const statements = {
   getAllRounds: db.prepare('SELECT * FROM rounds ORDER BY date DESC'),
 

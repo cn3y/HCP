@@ -2,24 +2,24 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Kopiere package files
+# Copy package files
 COPY package*.json ./
 
-# Installiere dependencies
+# Install dependencies
 RUN npm ci --only=production
 
-# Kopiere source code
+# Copy source code
 COPY src/ ./src/
 
-# Erstelle data-Verzeichnis
+# Create data directory
 RUN mkdir -p /app/data
 
-# Exponiere Port
+# Expose port
 EXPOSE 3001
 
 # Health Check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
 
-# Starte Server
+# Start server
 CMD ["node", "src/index.js"]

@@ -17,7 +17,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Lade Runden beim Start
+  // Load rounds on startup
   useEffect(() => {
     loadRounds();
   }, []);
@@ -30,7 +30,7 @@ function App() {
       setRounds(data);
     } catch (err) {
       console.error('Failed to load rounds:', err);
-      setError('Fehler beim Laden der Runden. Stellen Sie sicher, dass der Backend-Server läuft.');
+      setError('Failed to load rounds. Make sure the backend server is running.');
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ function App() {
       setRounds([...rounds, newRound]);
     } catch (err) {
       console.error('Failed to add round:', err);
-      setError('Fehler beim Hinzufügen der Runde');
+      setError('Failed to add round');
     }
   };
 
@@ -54,7 +54,7 @@ function App() {
       setRounds(rounds.filter(round => round.id !== id));
     } catch (err) {
       console.error('Failed to delete round:', err);
-      setError('Fehler beim Löschen der Runde');
+      setError('Failed to delete round');
     }
   };
 
@@ -74,7 +74,7 @@ function App() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Golf Handicap Tracker</h1>
-              <p className="text-gray-600 mt-1">Verfolgen Sie Ihre Entwicklung im Golfspiel</p>
+              <p className="text-gray-600 mt-1">Track your golf game development</p>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ function App() {
           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
             <AlertCircle className="text-red-600" size={24} />
             <div className="flex-1">
-              <h3 className="text-red-800 font-semibold">Fehler</h3>
+              <h3 className="text-red-800 font-semibold">Error</h3>
               <p className="text-red-700 text-sm">{error}</p>
             </div>
             <button
@@ -103,7 +103,7 @@ function App() {
         {loading ? (
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-golf-green-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Lade Daten...</p>
+            <p className="text-gray-600 mt-4">Loading data...</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -133,10 +133,10 @@ function App() {
       <footer className="mt-16 py-8 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-600 text-sm">
-            Handicap-Berechnung basiert auf dem World Handicap System (WHS)
+            Handicap calculation based on World Handicap System (WHS)
           </p>
           <p className="text-center text-gray-500 text-xs mt-2">
-            Daten werden serverseitig in SQLite gespeichert
+            Data stored server-side in SQLite database
           </p>
         </div>
       </footer>

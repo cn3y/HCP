@@ -15,7 +15,7 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
   if (rounds.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-8 text-center border border-gray-200">
-        <p className="text-gray-500">Noch keine Runden gespielt. Fügen Sie Ihre erste Runde hinzu!</p>
+        <p className="text-gray-500">No rounds played yet. Add your first round!</p>
       </div>
     );
   }
@@ -23,8 +23,8 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       <div className="p-6 bg-gradient-to-r from-golf-green-600 to-golf-green-700">
-        <h2 className="text-2xl font-bold text-white">Gespielte Runden</h2>
-        <p className="text-golf-green-100 mt-1">Alle {rounds.length} Runden im Überblick</p>
+        <h2 className="text-2xl font-bold text-white">Played Rounds</h2>
+        <p className="text-golf-green-100 mt-1">All {rounds.length} rounds overview</p>
       </div>
 
       <div className="divide-y divide-gray-200">
@@ -51,7 +51,7 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
                     )}
                     {round.roundType === 'official' && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-golf-green-100 text-golf-green-800">
-                        Offiziell
+                        Official
                       </span>
                     )}
                   </div>
@@ -59,7 +59,7 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
                     <Calendar size={16} />
                     <span>
-                      {new Date(round.date).toLocaleDateString('de-DE', {
+                      {new Date(round.date).toLocaleDateString('en-US', {
                         day: '2-digit',
                         month: 'long',
                         year: 'numeric'
@@ -77,7 +77,7 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
                       <span className="ml-2 font-semibold text-gray-800">{round.par}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Über Par:</span>
+                      <span className="text-gray-500">Over Par:</span>
                       <span className={`ml-2 font-semibold ${overPar > 0 ? 'text-red-600' : overPar < 0 ? 'text-green-600' : 'text-gray-800'}`}>
                         {overPar > 0 ? '+' : ''}{overPar}
                       </span>
@@ -96,7 +96,7 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
                 <button
                   onClick={() => onDeleteRound(round.id)}
                   className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  aria-label="Runde löschen"
+                  aria-label="Delete round"
                 >
                   <Trash2 size={20} />
                 </button>
