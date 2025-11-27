@@ -3,13 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { initDatabase, statements } = require('./database');
+const { statements } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
-// Initialisiere Datenbank
-initDatabase();
 
 // Middleware
 app.use(helmet());

@@ -17,31 +17,29 @@ const db = new Database(DB_PATH);
 // Aktiviere WAL-Modus für bessere Performance
 db.pragma('journal_mode = WAL');
 
-// Erstelle Tabellen
-function initDatabase() {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS rounds (
-      id TEXT PRIMARY KEY,
-      date TEXT NOT NULL,
-      course_name TEXT NOT NULL,
-      course_rating REAL NOT NULL,
-      slope_rating INTEGER NOT NULL,
-      score INTEGER NOT NULL,
-      par INTEGER NOT NULL,
-      round_type TEXT NOT NULL CHECK(round_type IN ('official', 'training')),
-      differential_score REAL,
-      notes TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
+// Erstelle Tabellen sofort beim Laden des Moduls
+db.exec(`
+  CREATE TABLE IF NOT EXISTS rounds (
+    id TEXT PRIMARY KEY,
+    date TEXT NOT NULL,
+    course_name TEXT NOT NULL,
+    course_rating REAL NOT NULL,
+    slope_rating INTEGER NOT NULL,
+    score INTEGER NOT NULL,
+    par INTEGER NOT NULL,
+    round_type TEXT NOT NULL CHECK(round_type IN ('official', 'training')),
+    differential_score REAL,
+    notes TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
 
-    CREATE INDEX IF NOT EXISTS idx_rounds_date ON rounds(date);
-    CREATE INDEX IF NOT EXISTS idx_rounds_type ON rounds(round_type);
-    CREATE INDEX IF NOT EXISTS idx_rounds_date_type ON rounds(date, round_type);
-  `);
+  CREATE INDEX IF NOT EXISTS idx_rounds_date ON rounds(date);
+  CREATE INDEX IF NOT EXISTS idx_rounds_type ON rounds(round_type);
+  CREATE INDEX IF NOT EXISTS idx_rounds_date_type ON rounds(date, round_type);
+`);
 
-  console.log('Database initialized successfully');
-}
+console.log('✅ Database initialized successfully');
 
 // Prepared Statements für bessere Performance
 const statements = {
@@ -83,6 +81,5 @@ const statements = {
 
 module.exports = {
   db,
-  initDatabase,
   statements
 };
