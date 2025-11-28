@@ -1,149 +1,149 @@
-# Deployment Guide für Golf Handicap Tracker
+# Deployment Guide for Golf Handicap Tracker
 
-Umfassende Anleitung für das Deployment der Anwendung mit Docker Compose oder Kubernetes (Longhorn + Traefik).
+Comprehensive guide for deploying the application with Docker Compose or Kubernetes (Longhorn + Traefik).
 
-## Inhaltsverzeichnis
+## Table of Contents
 
 - [Docker Compose Deployment](#docker-compose-deployment)
 - [Kubernetes Deployment](#kubernetes-deployment)
 - [Longhorn Storage](#longhorn-storage)
 - [Traefik vs Nginx Ingress](#traefik-vs-nginx-ingress)
-- [Makefile-Befehle](#makefile-befehle)
+- [Makefile Commands](#makefile-commands)
 
 ## Docker Compose Deployment
 
-### Voraussetzungen
+### Prerequisites
 
-- Docker und Docker Compose installiert
-- Ports 5173 (Frontend) und 3001 (Backend) verfügbar
+- Docker and Docker Compose installed
+- Ports 5173 (Frontend) and 3001 (Backend) available
 
-### Starten
+### Starting
 
 ```bash
-# Schnellstart
+# Quick start
 make compose-up
 
-# Oder direkt mit Docker Compose
+# Or directly with Docker Compose
 docker-compose up -d
 
-# Logs anzeigen
+# View logs
 make compose-logs
 
-# Stoppen
+# Stop
 make compose-down
 ```
 
-### Zugriff
+### Access
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3001
 - Health Check: http://localhost:3001/health
 
-### Daten-Persistenz
+### Data Persistence
 
-Die SQLite-Datenbank wird in einem Docker Volume gespeichert:
+The SQLite database is stored in a Docker Volume:
 ```bash
-# Volume anzeigen
+# Show volume
 docker volume ls | grep golf-data
 
-# Daten sichern
+# Backup data
 docker run --rm -v golf-data:/data -v $(pwd):/backup alpine tar czf /backup/golf-data-backup.tar.gz /data
 ```
 
 ## Kubernetes Deployment
 
-### Architektur
+### Architecture
 
-Die Anwendung besteht aus:
-- **Frontend**: Nginx mit React Build (3 Replicas)
+The application consists of:
+- **Frontend**: Nginx with React build (3 Replicas)
 - **Backend**: Node.js Express API (2 Replicas)
-- **Datenbank**: SQLite auf Longhorn PVC (1Gi)
-- **Ingress**: Traefik oder Nginx für externen Zugriff
+- **Database**: SQLite on Longhorn PVC (1Gi)
+- **Ingress**: Traefik or Nginx for external access
 
-### Voraussetzungen
+### Prerequisites
 
-1. **Kubernetes Cluster** mit kubectl Zugriff
-2. **Longhorn** Storage Class installiert
-3. **Traefik** oder **Nginx** Ingress Controller
+1. **Kubernetes Cluster** with kubectl access
+2. **Longhorn** Storage Class installed
+3. **Traefik** or **Nginx** Ingress Controller
 
-#### Longhorn prüfen
+#### Check Longhorn
 
 ```bash
-# Status prüfen
+# Check status
 kubectl get pods -n longhorn-system
 kubectl get storageclass longhorn
 
-# Als Default setzen (optional)
+# Set as default (optional)
 kubectl patch storageclass longhorn \
   -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-#### Traefik prüfen
+#### Check Traefik
 
 ```bash
-# Status prüfen
+# Check status
 kubectl get pods -n kube-system -l app.kubernetes.io/name=traefik
 
-# Traefik Dashboard (falls aktiviert)
+# Traefik Dashboard (if enabled)
 kubectl port-forward -n kube-system $(kubectl get pods -n kube-system -l app.kubernetes.io/name=traefik -o name | head -1) 9000:9000
 ```
 
-### Deployment-Optionen
+### Deployment Options
 
-#### Option 1: Mit Traefik (empfohlen)
+#### Option 1: With Traefik (Recommended)
 
 ```bash
-# 1. Images bauen und pushen
+# 1. Build and push images
 make build REGISTRY=your-registry VERSION=v1.0.0
 make push
 
-# 2. Manifeste anpassen (siehe unten)
+# 2. Adjust manifests (see below)
 
-# 3. Deployen
+# 3. Deploy
 make deploy-traefik
 
-# Oder mit kubectl
+# Or with kubectl
 kubectl apply -k k8s/overlays/traefik/
 ```
 
-#### Option 2: Mit Nginx
+#### Option 2: With Nginx
 
 ```bash
 make deploy-nginx
 
-# Oder mit kubectl
+# Or with kubectl
 kubectl apply -k k8s/overlays/nginx/
 ```
 
-### Konfiguration anpassen
+### Customize Configuration
 
 #### 1. Container Registry
 
-Ändern Sie in `k8s/deployment.yaml`:
+Change in `k8s/deployment.yaml`:
 ```yaml
 spec:
   template:
     spec:
       containers:
       - name: golf-handicap-tracker
-        image: your-registry/golf-handicap-tracker:v1.0.0  # <- Ihre Registry
+        image: your-registry/golf-handicap-tracker:v1.0.0  # <- Your registry
 ```
 
-Und in `k8s/backend-deployment.yaml`:
+And in `k8s/backend-deployment.yaml`:
 ```yaml
-image: your-registry/golf-handicap-backend:v1.0.0  # <- Ihre Registry
+image: your-registry/golf-handicap-backend:v1.0.0  # <- Your registry
 ```
 
-#### 2. Domain konfigurieren
+#### 2. Configure Domain
 
 In `k8s/ingress-traefik.yaml`:
 ```yaml
 spec:
   rules:
-  - host: golf.ihre-domain.de  # <- Ihre Domain
+  - host: golf.your-domain.com  # <- Your domain
 ```
 
-#### 3. Storage anpassen (optional)
+#### 3. Adjust Storage (optional)
 
 In `k8s/pvc.yaml`:
 ```yaml
@@ -154,23 +154,23 @@ spec:
       storage: 5Gi  # Default: 1Gi
 ```
 
-### Deployment durchführen
+### Perform Deployment
 
 ```bash
-# Status vor Deployment prüfen
+# Check status before deployment
 kubectl get nodes
 kubectl get storageclass
 kubectl get pods -n longhorn-system
 
-# Deployen
+# Deploy
 make deploy-traefik NAMESPACE=default
 
-# Status überprüfen
+# Check status
 make status
-kubectl get pvc  # Longhorn Volume prüfen
+kubectl get pvc  # Check Longhorn volume
 kubectl get ingress
 
-# Logs anzeigen
+# View logs
 make logs              # Frontend
 make backend-logs      # Backend
 ```
@@ -179,34 +179,34 @@ make backend-logs      # Backend
 
 ### Features
 
-- Distributed Block Storage für Kubernetes
-- Automatische Replikation (Default: 3 Kopien)
-- Snapshots und Backups
-- Web-UI für Management
+- Distributed block storage for Kubernetes
+- Automatic replication (default: 3 copies)
+- Snapshots and backups
+- Web UI for management
 
-### PVC Status prüfen
+### Check PVC Status
 
 ```bash
-# PVC Status
+# PVC status
 make pvc-status
 
-# Longhorn UI öffnen (falls installiert)
+# Open Longhorn UI (if installed)
 kubectl port-forward -n longhorn-system svc/longhorn-frontend 8080:80
-# Öffnen Sie: http://localhost:8080
+# Open: http://localhost:8080
 ```
 
-### Backup erstellen
+### Create Backup
 
 ```bash
-# Über Makefile
+# Via Makefile
 make db-backup
 
-# Manuell
+# Manually
 POD=$(kubectl get pod -l app=golf-handicap-backend -o jsonpath='{.items[0].metadata.name}')
 kubectl cp $POD:/app/data/golf-handicap.db ./backup.db
 ```
 
-### Backup wiederherstellen
+### Restore Backup
 
 ```bash
 make db-restore FILE=backup.db
@@ -214,7 +214,7 @@ make db-restore FILE=backup.db
 
 ### Longhorn Snapshots (optional)
 
-Erstellen Sie einen VolumeSnapshot für automatische Backups:
+Create a VolumeSnapshot for automatic backups:
 
 ```yaml
 apiVersion: snapshot.storage.k8s.io/v1
@@ -231,10 +231,10 @@ spec:
 
 ### Traefik Features
 
-- **Automatisches TLS** mit Let's Encrypt
+- **Automatic TLS** with Let's Encrypt
 - **WebSocket Support** out-of-the-box
-- **Middleware** für Security Headers, Rate Limiting, etc.
-- **Dashboard** für Monitoring
+- **Middleware** for security headers, rate limiting, etc.
+- **Dashboard** for monitoring
 
 **Traefik Annotations:**
 ```yaml
@@ -246,9 +246,9 @@ annotations:
 
 ### Nginx Features
 
-- **Bewährt** und stabil
-- **Umfangreiche Konfiguration** möglich
-- **Große Community**
+- **Battle-tested** and stable
+- **Extensive configuration** possible
+- **Large community**
 
 **Nginx Annotations:**
 ```yaml
@@ -258,15 +258,15 @@ annotations:
   cert-manager.io/cluster-issuer: "letsencrypt-prod"
 ```
 
-### TLS/HTTPS mit cert-manager
+### TLS/HTTPS with cert-manager
 
-Beide Ingress Controller funktionieren mit cert-manager:
+Both ingress controllers work with cert-manager:
 
 ```bash
-# cert-manager installieren
+# Install cert-manager
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 
-# ClusterIssuer erstellen
+# Create ClusterIssuer
 cat <<EOF | kubectl apply -f -
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -275,78 +275,78 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: ihre-email@example.com
+    email: your-email@example.com
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
     - http01:
         ingress:
-          class: traefik  # oder nginx
+          class: traefik  # or nginx
 EOF
 ```
 
-## Makefile-Befehle
+## Makefile Commands
 
 ### Docker Compose
 
 ```bash
-make compose-up          # Starten
-make compose-down        # Stoppen
-make compose-logs        # Logs anzeigen
-make compose-restart     # Neustarten
-make compose-build       # Images neu bauen
+make compose-up          # Start
+make compose-down        # Stop
+make compose-logs        # View logs
+make compose-restart     # Restart
+make compose-build       # Rebuild images
 ```
 
 ### Docker Images
 
 ```bash
-make build              # Frontend + Backend bauen
-make build-frontend     # Nur Frontend
-make build-backend      # Nur Backend
-make push               # Beide Images pushen
-make build-push         # Bauen und pushen
+make build              # Build frontend + backend
+make build-frontend     # Frontend only
+make build-backend      # Backend only
+make push               # Push both images
+make build-push         # Build and push
 ```
 
 ### Kubernetes Deployment
 
 ```bash
-make deploy-traefik     # Deploy mit Traefik
-make deploy-nginx       # Deploy mit Nginx
-make deploy INGRESS=traefik  # Mit Variable
+make deploy-traefik     # Deploy with Traefik
+make deploy-nginx       # Deploy with Nginx
+make deploy INGRESS=traefik  # With variable
 
-make status             # Status aller Ressourcen
-make logs               # Frontend Logs
-make backend-logs       # Backend Logs
-make rollout            # Rollout Status
+make status             # Status of all resources
+make logs               # Frontend logs
+make backend-logs       # Backend logs
+make rollout            # Rollout status
 ```
 
-### Skalierung
+### Scaling
 
 ```bash
-make scale REPLICAS=5   # Frontend skalieren
+make scale REPLICAS=5   # Scale frontend
 kubectl scale deployment/golf-handicap-backend --replicas=3  # Backend
 ```
 
-### Datenbank
+### Database
 
 ```bash
-make db-backup          # Backup erstellen
-make db-restore FILE=backup.db  # Wiederherstellen
-make backend-shell      # Shell im Backend Pod
+make db-backup          # Create backup
+make db-restore FILE=backup.db  # Restore
+make backend-shell      # Shell in backend pod
 ```
 
-### Port-Forwarding
+### Port Forwarding
 
 ```bash
-make port-forward       # Frontend (Port 8080)
-make backend-port-forward  # Backend (Port 3001)
+make port-forward       # Frontend (port 8080)
+make backend-port-forward  # Backend (port 3001)
 ```
 
 ### Cleanup
 
 ```bash
-make delete             # Alle Ressourcen löschen
-make compose-down       # Docker Compose stoppen
+make delete             # Delete all resources
+make compose-down       # Stop Docker Compose
 ```
 
 ## Monitoring & Troubleshooting
@@ -360,31 +360,31 @@ kubectl logs -l app=golf-handicap-tracker --tail=100 -f
 # Backend
 kubectl logs -l app=golf-handicap-backend --tail=100 -f
 
-# Alle zusammen
+# All together
 kubectl logs -l app=golf-handicap-tracker --all-containers=true -f
 ```
 
-### Pod-Status
+### Pod Status
 
 ```bash
-# Alle Pods
+# All pods
 kubectl get pods -l app=golf-handicap-tracker
 
-# Detaillierte Info
+# Detailed info
 kubectl describe pod -l app=golf-handicap-backend
 
-# Events anzeigen
+# Show events
 kubectl get events --sort-by='.lastTimestamp'
 ```
 
-### Ingress debuggen
+### Debug Ingress
 
 **Traefik:**
 ```bash
-# Traefik Logs
+# Traefik logs
 kubectl logs -n kube-system -l app.kubernetes.io/name=traefik -f
 
-# Routes anzeigen (im Dashboard oder via API)
+# Show routes (in dashboard or via API)
 kubectl port-forward -n kube-system svc/traefik 9000:9000
 ```
 
@@ -393,16 +393,16 @@ kubectl port-forward -n kube-system svc/traefik 9000:9000
 kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx -f
 ```
 
-### PVC Probleme
+### PVC Issues
 
 ```bash
-# PVC Status
+# PVC status
 kubectl describe pvc golf-handicap-data
 
-# Longhorn Volumes
+# Longhorn volumes
 kubectl get volumes -n longhorn-system
 
-# Longhorn Events
+# Longhorn events
 kubectl get events -n longhorn-system --sort-by='.lastTimestamp'
 ```
 
@@ -410,13 +410,13 @@ kubectl get events -n longhorn-system --sort-by='.lastTimestamp'
 
 ### 1. Resource Limits
 
-Die Deployments haben bereits sinnvolle Limits:
+The deployments already have sensible limits:
 - Frontend: 64Mi-128Mi RAM, 100m-200m CPU
 - Backend: 128Mi-256Mi RAM, 100m-500m CPU
 
 ### 2. Health Checks
 
-Beide Services haben Health Checks:
+Both services have health checks:
 ```yaml
 livenessProbe:
   httpGet:
@@ -426,7 +426,7 @@ livenessProbe:
 
 ### 3. Secrets
 
-Für Production sollten Sie Secrets verwenden:
+For production, use secrets:
 ```bash
 kubectl create secret generic golf-handicap-secrets \
   --from-literal=db-password=your-password
@@ -434,14 +434,14 @@ kubectl create secret generic golf-handicap-secrets \
 
 ### 4. Backups
 
-Automatisieren Sie Backups mit einem CronJob:
+Automate backups with a CronJob:
 ```yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: golf-handicap-backup
 spec:
-  schedule: "0 2 * * *"  # Täglich um 2 Uhr
+  schedule: "0 2 * * *"  # Daily at 2 AM
   jobTemplate:
     spec:
       template:
@@ -461,7 +461,7 @@ spec:
 
 ### 5. Monitoring
 
-Integrieren Sie Prometheus für Monitoring:
+Integrate Prometheus for monitoring:
 ```yaml
 apiVersion: v1
 kind: Service
@@ -473,23 +473,23 @@ metadata:
     prometheus.io/path: "/metrics"
 ```
 
-## Produktions-Checkliste
+## Production Checklist
 
-- [ ] Images in private Registry gepusht
-- [ ] Domain konfiguriert und DNS eingerichtet
-- [ ] TLS-Zertifikate mit cert-manager
-- [ ] Resource Limits angepasst
-- [ ] Backup-Strategie implementiert
-- [ ] Monitoring aufgesetzt
-- [ ] Logs aggregiert (z.B. mit Loki)
-- [ ] Secrets statt Plain-Text
-- [ ] Network Policies (optional)
-- [ ] Pod Security Policies
+- [ ] Images pushed to private registry
+- [ ] Domain configured and DNS set up
+- [ ] TLS certificates with cert-manager
+- [ ] Resource limits adjusted
+- [ ] Backup strategy implemented
+- [ ] Monitoring set up
+- [ ] Logs aggregated (e.g., with Loki)
+- [ ] Secrets instead of plain text
+- [ ] Network policies (optional)
+- [ ] Pod security policies
 
 ## Support
 
-Bei Problemen:
-1. Prüfen Sie die Logs (`make logs` / `make backend-logs`)
-2. Überprüfen Sie den PVC-Status (`make pvc-status`)
-3. Prüfen Sie Ingress-Logs
-4. Siehe `k8s/README.md` für detailliertes Troubleshooting
+If you encounter problems:
+1. Check the logs (`make logs` / `make backend-logs`)
+2. Verify PVC status (`make pvc-status`)
+3. Check ingress logs
+4. See `k8s/README.md` for detailed troubleshooting
