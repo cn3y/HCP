@@ -1,24 +1,24 @@
 # Kubernetes Deployment Guide
 
-Dieses Verzeichnis enthält Kubernetes-Manifeste für das Deployment der Golf Handicap Tracker Anwendung.
+This directory contains Kubernetes manifests for deploying the Golf Handicap Tracker application.
 
-## Übersicht
+## Overview
 
-Die Anwendung besteht aus zwei Hauptkomponenten:
-- **Frontend** (React + Nginx): Statische Web-Anwendung
-- **Backend** (Node.js + Express): REST API mit SQLite-Datenbank
+The application consists of two main components:
+- **Frontend** (React + Nginx): Static web application
+- **Backend** (Node.js + Express): REST API with SQLite database
 
-## Deployment-Optionen
+## Deployment Options
 
-### Option 1: Mit Traefik Ingress (Empfohlen für Longhorn)
+### Option 1: With Traefik Ingress (Recommended for Longhorn)
 
-Verwenden Sie diese Option, wenn Sie Traefik als Ingress Controller installiert haben:
+Use this option if you have Traefik as your Ingress Controller:
 
 ```bash
-# Mit Kustomize
+# With Kustomize
 kubectl apply -k overlays/traefik/
 
-# Oder manuell
+# Or manually
 kubectl apply -f pvc.yaml
 kubectl apply -f backend-deployment.yaml
 kubectl apply -f backend-service.yaml
@@ -27,15 +27,15 @@ kubectl apply -f service.yaml
 kubectl apply -f ingress-traefik.yaml
 ```
 
-### Option 2: Mit Nginx Ingress
+### Option 2: With Nginx Ingress
 
-Verwenden Sie diese Option, wenn Sie Nginx Ingress Controller haben:
+Use this option if you have Nginx Ingress Controller:
 
 ```bash
-# Mit Kustomize
+# With Kustomize
 kubectl apply -k overlays/nginx/
 
-# Oder manuell
+# Or manually
 kubectl apply -f pvc.yaml
 kubectl apply -f backend-deployment.yaml
 kubectl apply -f backend-service.yaml
@@ -44,58 +44,58 @@ kubectl apply -f service.yaml
 kubectl apply -f ingress.yaml
 ```
 
-## Voraussetzungen
+## Prerequisites
 
 ### 1. Storage Class (Longhorn)
 
-Die Anwendung verwendet standardmäßig Longhorn als Storage Class:
+The application uses Longhorn as the default Storage Class:
 
 ```bash
-# Prüfen Sie, ob Longhorn verfügbar ist
+# Check if Longhorn is available
 kubectl get storageclass longhorn
 
-# Optional: Als Default Storage Class setzen
+# Optional: Set as default Storage Class
 kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-Falls Sie eine andere Storage Class verwenden möchten, ändern Sie `storageClassName` in `pvc.yaml`.
+If you want to use a different Storage Class, change `storageClassName` in `pvc.yaml`.
 
 ### 2. Ingress Controller
 
-**Traefik (empfohlen):**
+**Traefik (recommended):**
 ```bash
-# Prüfen Sie, ob Traefik läuft
+# Check if Traefik is running
 kubectl get pods -n kube-system | grep traefik
 ```
 
 **Nginx:**
 ```bash
-# Prüfen Sie, ob Nginx Ingress läuft
+# Check if Nginx Ingress is running
 kubectl get pods -n ingress-nginx
 ```
 
-## Konfiguration
+## Configuration
 
-### Anpassen der Manifeste
+### Customize Manifests
 
-1. **Ingress Domain** in `ingress-traefik.yaml` oder `ingress.yaml`:
+1. **Ingress Domain** in `ingress-traefik.yaml` or `ingress.yaml`:
    ```yaml
    spec:
      rules:
-     - host: golf-handicap.ihre-domain.de  # <- Ändern
+     - host: golf-handicap.your-domain.com  # <- Change this
    ```
 
-2. **Container Images** in `deployment.yaml` und `backend-deployment.yaml`:
+2. **Container Images** in `deployment.yaml` and `backend-deployment.yaml`:
    ```yaml
-   image: your-registry/golf-handicap-tracker:latest  # <- Ändern
+   image: your-registry/golf-handicap-tracker:latest  # <- Change this
    ```
 
 3. **Namespace** (optional):
    ```bash
-   # Namespace erstellen
+   # Create namespace
    kubectl create namespace golf-tracker
 
-   # In kustomization.yaml anpassen
+   # Adjust in kustomization.yaml
    namespace: golf-tracker
    ```
 
@@ -106,44 +106,44 @@ kubectl get pods -n ingress-nginx
        storage: 5Gi  # Default: 1Gi
    ```
 
-## Ressourcen-Übersicht
+## Resource Overview
 
 ### Frontend (deployment.yaml)
 - **Replicas**: 3
 - **Resources**: 64Mi-128Mi RAM, 100m-200m CPU
 - **Port**: 80
-- **Image**: Nginx mit React Build
+- **Image**: Nginx with React build
 
 ### Backend (backend-deployment.yaml)
 - **Replicas**: 2
 - **Resources**: 128Mi-256Mi RAM, 100m-500m CPU
 - **Port**: 3001
-- **Image**: Node.js mit Express API
-- **Volume**: SQLite-Datenbank auf Longhorn PVC
+- **Image**: Node.js with Express API
+- **Volume**: SQLite database on Longhorn PVC
 
 ### Persistent Volume
-- **Storage**: 1Gi (anpassbar)
+- **Storage**: 1Gi (adjustable)
 - **Access Mode**: ReadWriteOnce
 - **Storage Class**: longhorn
 
 ### Services
-- **golf-handicap-tracker**: ClusterIP auf Port 80 (Frontend)
-- **golf-handicap-backend**: ClusterIP auf Port 3001 (Backend)
+- **golf-handicap-tracker**: ClusterIP on port 80 (Frontend)
+- **golf-handicap-backend**: ClusterIP on port 3001 (Backend)
 
 ### Ingress
 - **Frontend**: `/` → Port 80
 - **Backend API**: `/api` → Port 3001
-- **TLS**: Unterstützt mit cert-manager
+- **TLS**: Supported with cert-manager
 
-## TLS/HTTPS mit cert-manager
+## TLS/HTTPS with cert-manager
 
-### cert-manager installieren (falls nicht vorhanden)
+### Install cert-manager (if not present)
 
 ```bash
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 ```
 
-### ClusterIssuer erstellen
+### Create ClusterIssuer
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -154,40 +154,40 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: ihre-email@example.com
+    email: your-email@example.com
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
     - http01:
         ingress:
-          class: traefik  # oder nginx
+          class: traefik  # or nginx
 EOF
 ```
 
-### Ingress für TLS aktivieren
+### Enable TLS in Ingress
 
-Die TLS-Konfiguration ist bereits in den Ingress-Manifesten vorbereitet. Entfernen Sie einfach die Kommentare:
+TLS configuration is already prepared in the Ingress manifests. Simply uncomment:
 
 ```yaml
-# In ingress-traefik.yaml oder ingress.yaml
+# In ingress-traefik.yaml or ingress.yaml
 annotations:
-  cert-manager.io/cluster-issuer: "letsencrypt-prod"  # <- Entkommentieren
+  cert-manager.io/cluster-issuer: "letsencrypt-prod"  # <- Uncomment
 
 tls:
   - hosts:
     - golf-handicap.example.com
-    secretName: golf-handicap-tracker-tls  # <- Entkommentieren
+    secretName: golf-handicap-tracker-tls  # <- Uncomment
 ```
 
 ## Monitoring & Debugging
 
-### Status überprüfen
+### Check Status
 
 ```bash
-# Alle Ressourcen
+# All resources
 kubectl get all -l app=golf-handicap-tracker
 
-# PVC Status
+# PVC status
 kubectl get pvc golf-handicap-data
 kubectl describe pvc golf-handicap-data
 
@@ -204,17 +204,17 @@ kubectl get ingress
 kubectl describe ingress golf-handicap-tracker
 ```
 
-### In Pod einsteigen
+### Access Pod
 
 ```bash
-# Backend Pod
+# Backend pod
 kubectl exec -it deployment/golf-handicap-backend -- sh
 
-# Datenbank prüfen
+# Check database
 ls -la /app/data/
 ```
 
-### Port-Forward für lokalen Test
+### Port-Forward for Local Testing
 
 ```bash
 # Frontend
@@ -223,54 +223,54 @@ kubectl port-forward svc/golf-handicap-tracker 8080:80
 # Backend
 kubectl port-forward svc/golf-handicap-backend 3001:3001
 
-# Dann öffnen: http://localhost:8080
+# Then open: http://localhost:8080
 ```
 
-## Skalierung
+## Scaling
 
 ```bash
-# Frontend skalieren
+# Scale frontend
 kubectl scale deployment/golf-handicap-tracker --replicas=5
 
-# Backend skalieren
+# Scale backend
 kubectl scale deployment/golf-handicap-backend --replicas=3
 
-# HPA aktivieren
+# Enable HPA
 kubectl autoscale deployment/golf-handicap-tracker --cpu-percent=70 --min=3 --max=10
 kubectl autoscale deployment/golf-handicap-backend --cpu-percent=70 --min=2 --max=5
 ```
 
 ## Backup & Restore
 
-### Datenbank sichern
+### Backup Database
 
 ```bash
-# Pod finden
+# Find pod
 POD=$(kubectl get pod -l app=golf-handicap-backend -o jsonpath='{.items[0].metadata.name}')
 
-# Datenbank kopieren
+# Copy database
 kubectl cp $POD:/app/data/golf-handicap.db ./backup-$(date +%Y%m%d).db
 ```
 
-### Datenbank wiederherstellen
+### Restore Database
 
 ```bash
-# In Pod kopieren
+# Copy to pod
 kubectl cp ./backup.db $POD:/app/data/golf-handicap.db
 
-# Pod neu starten
+# Restart pod
 kubectl rollout restart deployment/golf-handicap-backend
 ```
 
 ## Cleanup
 
 ```bash
-# Mit Kustomize
+# With Kustomize
 kubectl delete -k overlays/traefik/
-# oder
+# or
 kubectl delete -k overlays/nginx/
 
-# Manuell
+# Manually
 kubectl delete ingress golf-handicap-tracker
 kubectl delete service golf-handicap-tracker golf-handicap-backend
 kubectl delete deployment golf-handicap-tracker golf-handicap-backend
@@ -279,58 +279,58 @@ kubectl delete pvc golf-handicap-data
 
 ## Troubleshooting
 
-### PVC bleibt im Pending-Status
+### PVC Stuck in Pending Status
 
 ```bash
-# Prüfen Sie Longhorn
+# Check Longhorn
 kubectl get pods -n longhorn-system
 
-# Prüfen Sie Storage Classes
+# Check Storage Classes
 kubectl get storageclass
 ```
 
-### Ingress funktioniert nicht
+### Ingress Not Working
 
 **Traefik:**
 ```bash
-# Traefik Status
+# Traefik status
 kubectl get pods -n kube-system -l app.kubernetes.io/name=traefik
 
-# Traefik Logs
+# Traefik logs
 kubectl logs -n kube-system -l app.kubernetes.io/name=traefik
 ```
 
 **Nginx:**
 ```bash
-# Nginx Ingress Status
+# Nginx Ingress status
 kubectl get pods -n ingress-nginx
 
-# Nginx Logs
+# Nginx logs
 kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
 ```
 
-### Backend kann nicht auf Datenbank zugreifen
+### Backend Cannot Access Database
 
 ```bash
-# Volume Mount prüfen
+# Check volume mount
 kubectl describe pod -l app=golf-handicap-backend
 
-# In Pod einsteigen und prüfen
+# Access pod and check
 kubectl exec -it deployment/golf-handicap-backend -- sh
 ls -la /app/data/
-touch /app/data/test.txt  # Schreibrechte testen
+touch /app/data/test.txt  # Test write permissions
 ```
 
 ### Image Pull Error
 
 ```bash
-# ImagePullSecret erstellen
+# Create ImagePullSecret
 kubectl create secret docker-registry regcred \
   --docker-server=ghcr.io \
   --docker-username=USERNAME \
   --docker-password=TOKEN
 
-# In Deployment referenzieren:
+# Reference in Deployment:
 spec:
   template:
     spec:
