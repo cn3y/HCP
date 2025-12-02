@@ -14,17 +14,20 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
 
   if (rounds.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8 text-center border border-gray-200">
-        <p className="text-gray-500">No rounds played yet. Add your first round!</p>
+      <div className="backdrop-blur-xl bg-white/90 rounded-3xl shadow-2xl p-12 text-center border border-white/50">
+        <p className="text-gray-500 text-lg">No rounds played yet. Add your first round!</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-      <div className="p-6 bg-gradient-to-r from-golf-green-600 to-golf-green-700">
-        <h2 className="text-2xl font-bold text-white">Played Rounds</h2>
-        <p className="text-golf-green-100 mt-1">All {rounds.length} rounds overview</p>
+    <div className="backdrop-blur-xl bg-white/90 rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
+      <div className="p-8 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="relative z-10">
+          <h2 className="text-3xl font-bold text-white drop-shadow">Played Rounds</h2>
+          <p className="text-white/90 mt-2 font-medium">All {rounds.length} rounds overview</p>
+        </div>
       </div>
 
       <div className="divide-y divide-gray-200">
@@ -35,7 +38,7 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
           return (
             <div
               key={round.id}
-              className="p-6 hover:bg-gray-50 transition-colors"
+              className="p-6 hover:bg-emerald-50/50 transition-all duration-200 hover:shadow-lg"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -45,12 +48,12 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
                       {round.courseName}
                     </h3>
                     {round.roundType === 'training' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg">
                         Training
                       </span>
                     )}
                     {round.roundType === 'official' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-golf-green-100 text-golf-green-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg">
                         Official
                       </span>
                     )}
@@ -95,10 +98,10 @@ export function RoundsList({ rounds, onDeleteRound }: RoundsListProps) {
 
                 <button
                   onClick={() => onDeleteRound(round.id)}
-                  className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="ml-4 p-3 text-red-600 hover:bg-red-100 rounded-2xl transition-all duration-200 hover:scale-110 hover:shadow-lg"
                   aria-label="Delete round"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 size={22} />
                 </button>
               </div>
             </div>

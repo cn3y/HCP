@@ -20,8 +20,8 @@ export function HandicapChart({ history }: HandicapChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Handicap Development</h2>
+    <div className="backdrop-blur-xl bg-white/90 rounded-3xl shadow-2xl p-8 border border-white/50 transform hover:shadow-3xl transition-all duration-300">
+      <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-8">Handicap Development</h2>
 
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={chartData}>
@@ -62,7 +62,7 @@ export function HandicapChart({ history }: HandicapChartProps) {
         </AreaChart>
       </ResponsiveContainer>
 
-      <div className="mt-4 text-sm text-gray-600 text-center">
+      <div className="mt-6 pt-6 border-t border-gray-200/50 text-sm text-gray-600 text-center font-medium">
         {history.length} data {history.length === 1 ? 'point' : 'points'} in history
       </div>
     </div>

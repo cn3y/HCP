@@ -52,17 +52,17 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-golf-green-500 hover:bg-golf-green-50 transition-all duration-200 flex items-center justify-center gap-3 text-gray-600 hover:text-golf-green-700"
+        className="group w-full backdrop-blur-xl bg-white/70 border-2 border-dashed border-emerald-300/50 rounded-3xl p-10 hover:border-emerald-500 hover:bg-gradient-to-br hover:from-emerald-50/50 hover:to-teal-50/50 transition-all duration-300 flex items-center justify-center gap-4 text-gray-600 hover:text-emerald-700 shadow-lg hover:shadow-2xl"
       >
-        <PlusCircle size={24} />
-        <span className="text-lg font-semibold">Add New Round</span>
+        <PlusCircle size={28} className="group-hover:scale-110 transition-transform" />
+        <span className="text-xl font-bold">Add New Round</span>
       </button>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-      <h3 className="text-xl font-bold text-gray-800 mb-4">New Golf Round</h3>
+    <form onSubmit={handleSubmit} className="backdrop-blur-xl bg-white/90 rounded-3xl shadow-2xl p-8 border border-white/50">
+      <h3 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-6">New Golf Round</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -197,17 +197,17 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
         </div>
       </div>
 
-      <div className="flex gap-3 mt-6">
+      <div className="flex gap-4 mt-8">
         <button
           type="submit"
-          className="flex-1 bg-golf-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-golf-green-700 transition-colors"
+          className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-4 rounded-2xl font-bold hover:from-emerald-600 hover:to-teal-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           Save Round
         </button>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+          className="px-8 py-4 border-2 border-gray-300 rounded-2xl font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition-all duration-200"
         >
           Cancel
         </button>
