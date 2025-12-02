@@ -1,48 +1,48 @@
 # Golf Handicap Tracker
 
-Eine moderne Web-Anwendung zum Tracking Ihres Golf-Handicaps. Verfolgen Sie Ihre Entwicklung im Golfspiel mit ansprechenden Visualisierungen und detaillierten Statistiken.
+A modern web application for tracking your golf handicap. Track your development in golf with appealing visualizations and detailed statistics.
 
 ## Features
 
-- 📊 **Handicap-Berechnung** nach World Handicap System (WHS)
-- 📈 **Visuelle Darstellung** Ihrer Handicap-Entwicklung
-- 💾 **Serverseitige SQLite-Datenbank** für sichere Datenspeicherung
-- 🎯 **Offizielle & Trainingsrunden** - Unterscheiden Sie zwischen offiziellen Runden und "Was-wäre-wenn" Szenarien
-- 🧮 **Was-wäre-wenn Modus** - Sehen Sie, wie Trainingsrunden Ihr Handicap beeinflussen würden
-- 📱 **Responsive Design** für Desktop, Tablet und Mobile
-- 🎯 **Detaillierte Rundenübersicht** mit Score Differentials
-- 📝 **Notizen zu Runden** - Halten Sie Wetterbedingungen und Besonderheiten fest
-- ✨ **Modernes UI** mit TailwindCSS
+- 📊 **Handicap Calculation** based on World Handicap System (WHS)
+- 📈 **Visual Display** of your handicap development
+- 💾 **Server-side SQLite Database** for secure data storage
+- 🎯 **Official & Training Rounds** - Distinguish between official rounds and "what-if" scenarios
+- 🧮 **What-If Mode** - See how training rounds would affect your handicap
+- 📱 **Responsive Design** for Desktop, Tablet, and Mobile
+- 🎯 **Detailed Round Overview** with Score Differentials
+- 📝 **Round Notes** - Record weather conditions and special notes
+- ✨ **Modern UI** with TailwindCSS
 
-## Technologie-Stack
+## Technology Stack
 
 ### Frontend
-- **React 18** - Modern UI-Framework
-- **TypeScript** - Type-sichere Entwicklung
-- **Vite** - Schneller Build-Prozess
+- **React 18** - Modern UI Framework
+- **TypeScript** - Type-safe development
+- **Vite** - Fast build process
 - **TailwindCSS** - Utility-First CSS Framework
-- **Recharts** - Datenvisualisierung
-- **Lucide React** - Moderne Icons
+- **Recharts** - Data visualization
+- **Lucide React** - Modern icons
 
 ### Backend
 - **Node.js + Express** - RESTful API Server
-- **SQLite (better-sqlite3)** - Leichtgewichtige, serverlose Datenbank
+- **SQLite (better-sqlite3)** - Lightweight, serverless database
 - **Helmet** - Security Middleware
 - **CORS** - Cross-Origin Resource Sharing
 
 ## Installation
 
-### Schnellstart mit Docker Compose (empfohlen)
+### Quick Start with Docker Compose (Recommended)
 
 ```bash
-# Starte Frontend + Backend mit einem Befehl
+# Start Frontend + Backend with one command
 docker-compose up
 
 # Frontend: http://localhost:5173
 # Backend API: http://localhost:3001
 ```
 
-### Manuelle Installation
+### Manual Installation
 
 #### Backend
 
@@ -50,10 +50,10 @@ docker-compose up
 cd server
 npm install
 
-# Erstelle .env Datei
+# Create .env file
 cp .env.example .env
 
-# Starte Backend-Server
+# Start backend server
 npm start
 ```
 
@@ -62,167 +62,167 @@ npm start
 ```bash
 npm install
 
-# Erstelle .env Datei
+# Create .env file
 cp .env.example .env
 
-# Starte Entwicklungsserver
+# Start development server
 npm run dev
 
-# Production Build erstellen
+# Create production build
 npm run build
 ```
 
-## Verwendung
+## Usage
 
-1. **Runde hinzufügen**: Klicken Sie auf "Neue Runde hinzufügen" und geben Sie die Details Ihrer Golfrunde ein:
-   - Datum der Runde
-   - Platzname
+1. **Add Round**: Click "Add New Round" and enter your golf round details:
+   - Date of the round
+   - Course name
    - Course Rating
    - Slope Rating
-   - Ihr Score
-   - Par des Platzes
-   - **Rundentyp**: Wählen Sie zwischen:
-     - **Offizielle Runde**: Zählt für Ihr offizielles Handicap
-     - **Trainingsrunde**: "Was-wäre-wenn" Szenario, zählt nicht für Handicap
-   - Optionale Notizen (z.B. Wetterbedingungen)
+   - Your Score
+   - Course Par
+   - **Round Type**: Choose between:
+     - **Official Round**: Counts toward your official handicap
+     - **Training Round**: "What-if" scenario, doesn't count toward handicap
+   - Optional notes (e.g., weather conditions)
 
-2. **Handicap verfolgen**: Ihr aktuelles Handicap wird automatisch berechnet und auf der Hauptkarte angezeigt.
+2. **Track Handicap**: Your current handicap is automatically calculated and displayed on the main card.
 
-3. **"Was-wäre-wenn" Szenarien**:
-   - Trainingsrunden werden separat erfasst
-   - Sehen Sie in der blauen Karte, wie Ihr Handicap aussehen würde, wenn Trainingsrunden zählen würden
-   - Perfekt zum Testen von Verbesserungen!
+3. **"What-If" Scenarios**:
+   - Training rounds are tracked separately
+   - See in the blue card what your handicap would look like if training rounds counted
+   - Perfect for testing improvements!
 
-4. **Entwicklung analysieren**: Das Diagramm zeigt Ihre Handicap-Entwicklung über alle offiziellen Runden.
+4. **Analyze Development**: The chart shows your handicap development over all official rounds.
 
-5. **Runden verwalten**: In der Rundenliste sehen Sie alle Runden mit Badges (Offiziell/Training). Runden können jederzeit gelöscht werden.
+5. **Manage Rounds**: In the rounds list you see all rounds with badges (Official/Training). Rounds can be deleted at any time.
 
-## Handicap-Berechnung
+## Handicap Calculation
 
-Die Anwendung verwendet eine vereinfachte Version des World Handicap System (WHS):
+The application uses a simplified version of the World Handicap System (WHS):
 
 1. **Score Differential**: `(113 / Slope Rating) × (Score - Course Rating)`
-2. **Handicap Index**: Durchschnitt der besten Score Differentials × 0.96
+2. **Handicap Index**: Average of best Score Differentials × 0.96
 
-Die Anzahl der verwendeten Runden variiert je nach Anzahl der gespielten Runden:
-- 1-5 Runden: beste 1
-- 6-8 Runden: beste 2
-- 9-11 Runden: beste 3
-- 12-14 Runden: beste 4
-- 15-16 Runden: beste 5
-- 17-18 Runden: beste 6
-- 19 Runden: beste 7
-- 20+ Runden: beste 8
+The number of rounds used varies based on total rounds played:
+- 1-5 rounds: best 1
+- 6-8 rounds: best 2
+- 9-11 rounds: best 3
+- 12-14 rounds: best 4
+- 15-16 rounds: best 5
+- 17-18 rounds: best 6
+- 19 rounds: best 7
+- 20+ rounds: best 8
 
-## Datenspeicherung
+## Data Storage
 
-Alle Daten werden serverseitig in einer SQLite-Datenbank gespeichert:
-- **Persistent**: Daten bleiben auch nach Browser-Neuladen erhalten
-- **Sicher**: SQLite ist eine bewährte, robuste Datenbank
-- **Portabel**: Die Datenbankdatei kann einfach gesichert werden
-- **Lokal**: Bei lokaler Installation bleiben Ihre Daten auf Ihrem Server
+All data is stored server-side in a SQLite database:
+- **Persistent**: Data persists after browser reload
+- **Secure**: SQLite is a proven, robust database
+- **Portable**: Database file can be easily backed up
+- **Local**: With local installation, your data stays on your server
 
 ### API Endpoints
 
-Die Anwendung nutzt folgende REST-API Endpoints:
+The application uses the following REST API endpoints:
 
-- `GET /api/rounds` - Alle Runden abrufen (mit optionalem Type-Filter)
-- `GET /api/rounds/:id` - Einzelne Runde abrufen
-- `POST /api/rounds` - Neue Runde erstellen
-- `PUT /api/rounds/:id` - Runde aktualisieren
-- `DELETE /api/rounds/:id` - Runde löschen
-- `GET /api/statistics` - Statistiken abrufen
+- `GET /api/rounds` - Fetch all rounds (with optional type filter)
+- `GET /api/rounds/:id` - Fetch single round
+- `POST /api/rounds` - Create new round
+- `PUT /api/rounds/:id` - Update round
+- `DELETE /api/rounds/:id` - Delete round
+- `GET /api/statistics` - Fetch statistics
 - `GET /health` - Health Check
 
-## Browser-Kompatibilität
+## Browser Compatibility
 
-Die Anwendung funktioniert in allen modernen Browsern:
-- Chrome/Edge (neueste 2 Versionen)
-- Firefox (neueste 2 Versionen)
-- Safari (neueste 2 Versionen)
+The application works in all modern browsers:
+- Chrome/Edge (latest 2 versions)
+- Firefox (latest 2 versions)
+- Safari (latest 2 versions)
 
 ## Kubernetes Deployment
 
-Die Anwendung kann in einer Kubernetes-Umgebung deployed werden.
+The application can be deployed in a Kubernetes environment.
 
-### Voraussetzungen
+### Prerequisites
 
-- Docker installiert und konfiguriert
-- Zugriff auf eine Container Registry (Docker Hub, GHCR, etc.)
-- kubectl installiert und mit dem Cluster verbunden
-- Nginx Ingress Controller im Cluster (optional, für Ingress)
+- Docker installed and configured
+- Access to a Container Registry (Docker Hub, GHCR, etc.)
+- kubectl installed and connected to the cluster
+- Nginx Ingress Controller in cluster (optional, for Ingress)
 
-### 1. Docker Image bauen und pushen
+### 1. Build and Push Docker Image
 
 ```bash
-# Image bauen
+# Build image
 docker build -t your-registry/golf-handicap-tracker:latest .
 
-# Image testen (optional)
+# Test image (optional)
 docker run -p 8080:80 your-registry/golf-handicap-tracker:latest
 
-# Image pushen
+# Push image
 docker push your-registry/golf-handicap-tracker:latest
 ```
 
-### 2. Kubernetes Manifeste anpassen
+### 2. Customize Kubernetes Manifests
 
-Passen Sie die Werte in `k8s/deployment.yaml` an:
-- Ersetzen Sie `your-registry/golf-handicap-tracker:latest` mit Ihrer Image-URL
+Adjust values in `k8s/deployment.yaml`:
+- Replace `your-registry/golf-handicap-tracker:latest` with your image URL
 
-Passen Sie `k8s/ingress.yaml` an:
-- Ändern Sie `golf-handicap.example.com` zu Ihrer Domain
-- Kommentieren Sie TLS-Konfiguration ein, falls gewünscht
+Adjust `k8s/ingress.yaml`:
+- Change `golf-handicap.example.com` to your domain
+- Uncomment TLS configuration if desired
 
-### 3. Deployment mit kubectl
+### 3. Deployment with kubectl
 
 ```bash
-# Alle Ressourcen deployen
+# Deploy all resources
 kubectl apply -f k8s/
 
-# Oder mit Kustomize
+# Or with Kustomize
 kubectl apply -k k8s/
 
-# Status überprüfen
+# Check status
 kubectl get deployments
 kubectl get pods
 kubectl get services
 kubectl get ingress
 ```
 
-### 4. Deployment verifizieren
+### 4. Verify Deployment
 
 ```bash
-# Logs anzeigen
+# View logs
 kubectl logs -l app=golf-handicap-tracker
 
-# Pod-Details anzeigen
+# Show pod details
 kubectl describe pod -l app=golf-handicap-tracker
 
-# Port-Forward für lokalen Test (ohne Ingress)
+# Port-forward for local test (without Ingress)
 kubectl port-forward svc/golf-handicap-tracker 8080:80
-# Öffnen Sie http://localhost:8080
+# Open http://localhost:8080
 ```
 
-### 5. Update deployen
+### 5. Deploy Update
 
 ```bash
-# Neues Image bauen und pushen
+# Build and push new image
 docker build -t your-registry/golf-handicap-tracker:v1.1.0 .
 docker push your-registry/golf-handicap-tracker:v1.1.0
 
-# Deployment aktualisieren
+# Update deployment
 kubectl set image deployment/golf-handicap-tracker \
   golf-handicap-tracker=your-registry/golf-handicap-tracker:v1.1.0
 
-# Rollout-Status überwachen
+# Monitor rollout status
 kubectl rollout status deployment/golf-handicap-tracker
 ```
 
-### 6. Skalierung
+### 6. Scaling
 
 ```bash
-# Anzahl der Replicas ändern
+# Change number of replicas
 kubectl scale deployment/golf-handicap-tracker --replicas=5
 
 # Horizontal Pod Autoscaler (optional)
@@ -230,28 +230,28 @@ kubectl autoscale deployment golf-handicap-tracker \
   --cpu-percent=70 --min=3 --max=10
 ```
 
-### Kubernetes-Ressourcen
+### Kubernetes Resources
 
-Die folgenden Kubernetes-Ressourcen werden deployed:
+The following Kubernetes resources are deployed:
 
-- **Deployment**: 3 Replicas mit Rolling Update-Strategie
-- **Service**: ClusterIP Service auf Port 80
-- **Ingress**: Nginx Ingress für externen Zugriff (optional)
+- **Deployment**: 3 Replicas with Rolling Update strategy
+- **Service**: ClusterIP Service on port 80
+- **Ingress**: Nginx Ingress for external access (optional)
 
 ### Health Checks
 
-Die Anwendung bietet einen Health-Check-Endpoint:
+The application provides a health check endpoint:
 - **URL**: `/health`
-- **Liveness Probe**: Prüft alle 30 Sekunden
-- **Readiness Probe**: Prüft alle 10 Sekunden
+- **Liveness Probe**: Checks every 30 seconds
+- **Readiness Probe**: Checks every 10 seconds
 
-### Ressourcen-Anforderungen
+### Resource Requirements
 
 - **Requests**: 64Mi RAM, 100m CPU
 - **Limits**: 128Mi RAM, 200m CPU
 
-Diese Werte können in `k8s/deployment.yaml` angepasst werden.
+These values can be adjusted in `k8s/deployment.yaml`.
 
-## Lizenz
+## License
 
 MIT
