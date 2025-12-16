@@ -20,50 +20,58 @@ export function HandicapChart({ history }: HandicapChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Handicap Development</h2>
+    <div className="glass-dark rounded-3xl shadow-soft p-4 sm:p-6 border border-gray-100 animate-fade-in">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Handicap Development</h2>
+        <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-medium">
+          {history.length} {history.length === 1 ? 'point' : 'points'}
+        </span>
+      </div>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={chartData}>
-          <defs>
-            <linearGradient id="colorHandicap" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#16a34a" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="#16a34a" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="date"
-            stroke="#6b7280"
-            style={{ fontSize: '12px' }}
-          />
-          <YAxis
-            stroke="#6b7280"
-            style={{ fontSize: '12px' }}
-            domain={['dataMin - 2', 'dataMax + 2']}
-            reversed
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              padding: '8px 12px'
-            }}
-            formatter={(value: number) => [value.toFixed(1), 'Handicap']}
-          />
-          <Area
-            type="monotone"
-            dataKey="handicap"
-            stroke="#16a34a"
-            strokeWidth={3}
-            fill="url(#colorHandicap)"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-
-      <div className="mt-4 text-sm text-gray-600 text-center">
-        {history.length} data {history.length === 1 ? 'point' : 'points'} in history
+      <div className="h-56 sm:h-72 lg:h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient id="colorHandicap" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#16a34a" stopOpacity={0.4}/>
+                <stop offset="95%" stopColor="#16a34a" stopOpacity={0.05}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+            <XAxis
+              dataKey="date"
+              stroke="#9ca3af"
+              style={{ fontSize: '11px' }}
+              tick={{ fill: '#6b7280' }}
+            />
+            <YAxis
+              stroke="#9ca3af"
+              style={{ fontSize: '11px' }}
+              tick={{ fill: '#6b7280' }}
+              domain={['dataMin - 2', 'dataMax + 2']}
+              reversed
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+              }}
+              formatter={(value: number) => [value.toFixed(1), 'Handicap']}
+              labelStyle={{ fontWeight: 600, color: '#374151', marginBottom: '4px' }}
+            />
+            <Area
+              type="monotone"
+              dataKey="handicap"
+              stroke="#16a34a"
+              strokeWidth={3}
+              fill="url(#colorHandicap)"
+              animationDuration={1000}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
