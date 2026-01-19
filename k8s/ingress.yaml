@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 
-    # Cert-Manager Annotation (optional, für automatische TLS-Zertifikate)
+    # Cert-Manager Annotation (optional, for automatic TLS certificates)
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
     # Rate Limiting (optional)
@@ -17,7 +17,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: golf-handicap.example.com  # Ändern Sie dies zu Ihrer Domain
+  - host: golf-handicap.example.com  # Change this to your domain
     http:
       paths:
       - path: /api
@@ -34,7 +34,7 @@ spec:
             name: golf-handicap-tracker
             port:
               number: 80
-  # TLS-Konfiguration (optional)
+  # TLS Configuration (optional)
   # tls:
   # - hosts:
   #   - golf-handicap.example.com

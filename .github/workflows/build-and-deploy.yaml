@@ -120,7 +120,7 @@ jobs:
           echo "${{ steps.meta-backend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
-  # Optionaler Deploy-Job (aktivieren, wenn automatisches Deployment gewünscht)
+  # Optional Deploy Job (enable when automatic deployment is desired)
   # deploy:
   #   needs: build
   #   runs-on: ubuntu-latest
