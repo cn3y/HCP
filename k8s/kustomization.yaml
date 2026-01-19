@@ -7,7 +7,7 @@ resources:
   - backend-service.yaml
   - deployment.yaml
   - service.yaml
-  - ingress.yaml
+  - ingress-traefik.yaml  # Traefik Ingress für Kubernetes
 
 commonLabels:
   app: golf-handicap-tracker
