@@ -72,8 +72,8 @@ class ApiService {
   }
 
   // Statistiken abrufen
-  async getStatistics(): Promise<any> {
-    return this.request<any>('/statistics');
+  async getStatistics(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>('/statistics');
   }
 
   // Health Check
