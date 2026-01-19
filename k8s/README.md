@@ -10,13 +10,13 @@ The application consists of two main components:
 
 ## Deployment Options
 
-### Option 1: With Traefik Ingress (Recommended for Longhorn)
+### Default: Traefik Ingress (Recommended)
 
-Use this option if you have Traefik as your Ingress Controller:
+**Traefik is the default Ingress Controller** for Kubernetes deployments. The main `kustomization.yaml` uses `ingress-traefik.yaml`.
 
 ```bash
-# With Kustomize
-kubectl apply -k overlays/traefik/
+# Deploy with default Traefik Ingress (Recommended)
+kubectl apply -k .
 
 # Or manually
 kubectl apply -f pvc.yaml
@@ -27,12 +27,12 @@ kubectl apply -f service.yaml
 kubectl apply -f ingress-traefik.yaml
 ```
 
-### Option 2: With Nginx Ingress
+### Alternative: Nginx Ingress
 
-Use this option if you have Nginx Ingress Controller:
+If you prefer Nginx Ingress Controller, use the overlay:
 
 ```bash
-# With Kustomize
+# Deploy with Nginx Ingress overlay
 kubectl apply -k overlays/nginx/
 
 # Or manually

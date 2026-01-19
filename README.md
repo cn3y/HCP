@@ -17,18 +17,23 @@ A modern web application for tracking your golf handicap. Track your development
 ## Technology Stack
 
 ### Frontend
-- **React 18** - Modern UI Framework
+- **React 19** - Modern UI Framework
 - **TypeScript** - Type-safe development
-- **Vite** - Fast build process
-- **TailwindCSS** - Utility-First CSS Framework
+- **Vite 7** - Fast build process
+- **TailwindCSS 4** - Utility-First CSS Framework
 - **Recharts** - Data visualization
 - **Lucide React** - Modern icons
 
 ### Backend
-- **Node.js + Express** - RESTful API Server
+- **Node.js + Express 5** - RESTful API Server
 - **SQLite (better-sqlite3)** - Lightweight, serverless database
-- **Helmet** - Security Middleware
+- **Helmet 8** - Security Middleware
 - **CORS** - Cross-Origin Resource Sharing
+- **express-rate-limit** - Rate limiting protection
+
+### Deployment
+- **Docker**: nginx reverse proxy for production
+- **Kubernetes**: Traefik Ingress Controller (default)
 
 ## Installation
 
@@ -141,7 +146,52 @@ The application works in all modern browsers:
 - Firefox (latest 2 versions)
 - Safari (latest 2 versions)
 
-## Kubernetes Deployment
+## Deployment
+
+The application supports multiple deployment options:
+
+### 📦 Docker Deployment (nginx reverse proxy)
+
+For Docker-based deployments, we use **nginx as reverse proxy** in production.
+
+See **[DOCKER-DEPLOYMENT.md](./DOCKER-DEPLOYMENT.md)** for detailed instructions including:
+- Development setup (docker-compose.yml)
+- Production setup with nginx (docker-compose.prod.yml)
+- SSL/TLS configuration
+- Backup & restore procedures
+
+**Quick Start:**
+```bash
+# Development
+docker-compose up
+
+# Production
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### ☸️ Kubernetes Deployment (Traefik Ingress)
+
+For Kubernetes deployments, we use **Traefik as Ingress Controller** by default.
+
+See **[k8s/README.md](./k8s/README.md)** for comprehensive Kubernetes deployment guide including:
+- Traefik Ingress setup (default)
+- Nginx Ingress alternative
+- Longhorn storage configuration
+- TLS/SSL with cert-manager
+- Monitoring & troubleshooting
+
+**Quick Start:**
+```bash
+# Deploy with Traefik (default)
+kubectl apply -k k8s/
+
+# Or with Nginx Ingress
+kubectl apply -k k8s/overlays/nginx/
+```
+
+---
+
+## Legacy Kubernetes Deployment (Basic)
 
 The application can be deployed in a Kubernetes environment.
 
@@ -150,7 +200,7 @@ The application can be deployed in a Kubernetes environment.
 - Docker installed and configured
 - Access to a Container Registry (Docker Hub, GHCR, etc.)
 - kubectl installed and connected to the cluster
-- Nginx Ingress Controller in cluster (optional, for Ingress)
+- Traefik or Nginx Ingress Controller in cluster
 
 ### 1. Build and Push Docker Image
 
