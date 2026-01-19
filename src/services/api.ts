@@ -37,18 +37,18 @@ class ApiService {
     return result.data as T;
   }
 
-  // Alle Runden abrufen (mit optionalem Type-Filter)
+  // Get all rounds (with optional type filter)
   async getRounds(type?: 'official' | 'training'): Promise<GolfRound[]> {
     const query = type ? `?type=${type}` : '';
     return this.request<GolfRound[]>(`/rounds${query}`);
   }
 
-  // Einzelne Runde abrufen
+  // Get a single round
   async getRound(id: string): Promise<GolfRound> {
     return this.request<GolfRound>(`/rounds/${id}`);
   }
 
-  // Neue Runde erstellen
+  // Create a new round
   async createRound(round: Omit<GolfRound, 'differentialScore'>): Promise<GolfRound> {
     return this.request<GolfRound>('/rounds', {
       method: 'POST',
@@ -56,7 +56,7 @@ class ApiService {
     });
   }
 
-  // Runde aktualisieren
+  // Update a round
   async updateRound(id: string, round: Partial<GolfRound>): Promise<GolfRound> {
     return this.request<GolfRound>(`/rounds/${id}`, {
       method: 'PUT',
@@ -64,14 +64,14 @@ class ApiService {
     });
   }
 
-  // Runde löschen
+  // Delete a round
   async deleteRound(id: string): Promise<void> {
     await this.request<void>(`/rounds/${id}`, {
       method: 'DELETE',
     });
   }
 
-  // Statistiken abrufen
+  // Get statistics
   async getStatistics(): Promise<Record<string, unknown>> {
     return this.request<Record<string, unknown>>('/statistics');
   }

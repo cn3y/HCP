@@ -9,15 +9,15 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
 
-    # Optional: TLS mit cert-manager
+    # Optional: TLS with cert-manager
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
-    # Middleware für bessere Sicherheit (optional)
+    # Middleware for enhanced security (optional)
     # traefik.ingress.kubernetes.io/router.middlewares: default-security-headers@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
-  - host: golf-handicap.example.com  # Ändern Sie dies zu Ihrer Domain
+  - host: golf-handicap.example.com  # Change this to your domain
     http:
       paths:
       # Backend API
@@ -36,7 +36,7 @@ spec:
             name: golf-handicap-tracker
             port:
               number: 80
-  # TLS-Konfiguration
+  # TLS Configuration
   tls:
   - hosts:
     - golf-handicap.example.com
