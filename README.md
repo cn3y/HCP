@@ -35,12 +35,27 @@ A modern web application for tracking your golf handicap. Track your development
 - **Docker**: nginx reverse proxy for production
 - **Kubernetes**: Traefik Ingress Controller (default)
 
+### Pre-built Docker Images
+- **Frontend**: `ghcr.io/cn3y/hcp/frontend:latest`
+- **Backend**: `ghcr.io/cn3y/hcp/backend:latest`
+
+See **[GITHUB-CONTAINER-REGISTRY.md](./GITHUB-CONTAINER-REGISTRY.md)** for details.
+
 ## Installation
 
 ### Quick Start with Docker Compose (Recommended)
 
+**Option 1: Using pre-built images from GitHub Container Registry**
 ```bash
-# Start Frontend + Backend with one command
+# Pull and run pre-built images (no build required)
+docker-compose -f docker-compose.ghcr.yml up -d
+
+# Access: http://localhost
+```
+
+**Option 2: Build locally for development**
+```bash
+# Build and run locally with hot reload
 docker-compose up
 
 # Frontend: http://localhost:5173

@@ -28,6 +28,21 @@ The application uses **nginx as reverse proxy** for all Docker-based deployments
                   └─────────┘
 ```
 
+## Pre-built Images (GitHub Container Registry)
+
+**Quick Start** - Use pre-built images without building locally:
+
+```bash
+# Pull and run pre-built images
+docker-compose -f docker-compose.ghcr.yml up -d
+
+# Access application: http://localhost
+```
+
+See **[GITHUB-CONTAINER-REGISTRY.md](./GITHUB-CONTAINER-REGISTRY.md)** for complete GHCR documentation.
+
+---
+
 ## Deployment Options
 
 ### 1. Development Setup (Recommended for Development)
