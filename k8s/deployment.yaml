@@ -22,7 +22,7 @@ spec:
       containers:
       - name: golf-handicap-tracker
         # GitHub Container Registry (GHCR) image
-        image: ghcr.io/cn3y/hcp/frontend:latest
+        image: ghcr.io/cn3y/hcp/frontend:sha-8d2e1f5  # Update this tag to latest sha
         # For specific version: ghcr.io/cn3y/hcp/frontend:1.2.3
         # For local build: your-registry/golf-handicap-tracker:latest
         imagePullPolicy: Always
