@@ -6,6 +6,17 @@ on:
       - main
   tags:
     - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      deploy_type:
+        description: 'Type of deployment (frontend, backend, both)'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - frontend
+          - backend
 
 env:
   REGISTRY: ghcr.io
