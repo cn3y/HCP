@@ -18,36 +18,43 @@ export default {
           700: '#15803d',
           800: '#166534',
           900: '#14532d',
+          950: '#052e16',
         },
-      },
-      boxShadow: {
-        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-        'glow': '0 0 20px rgba(34, 197, 94, 0.3)',
-        'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.4s ease-out',
-        'scale-in': 'scaleIn 0.3s ease-out',
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+        'golf-gold': {
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
         },
-        slideUp: {
-          '0%': { transform: 'translateY(20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
+        'golf-sand': {
+          100: '#fffbeb',
+          200: '#fef3c7',
+          300: '#fde68a',
+          400: '#fadb14',
+          500: '#facc15',
+          600: '#eab308',
+          700: '#a16207',
+          800: '#854d0e',
         },
-        scaleIn: {
-          '0%': { transform: 'scale(0.9)', opacity: '0' },
-          '100%': { transform: 'scale(1)', opacity: '1' },
-        },
+        'golf-blue': {
+          500: '#3b82f6',
+          600: '#2563eb',
+        }
       },
-      backdropBlur: {
-        xs: '2px',
-      },
+      backgroundImage: {
+        'golf-green-gradient': 'linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%)',
+        'golf-forest': 'linear-gradient(135deg, #16a34a 0%, #15803d 50%, #064e3b 100%)',
+        'golf-gold-accent': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        'gold-shimmer': 'linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.3), transparent)',
+        'green-gradient': 'linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%)',
+        'fairway-gradient': 'linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%)',
+        'sand-accent': 'linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #d97706 100%)',
+      }
     },
   },
   plugins: [],

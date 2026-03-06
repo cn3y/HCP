@@ -1,158 +1,241 @@
-import { useState, useEffect } from 'react';
-import type { GolfRound } from './types';
-import { HandicapCard } from './components/HandicapCard';
-import { RoundForm } from './components/RoundForm';
-import { RoundsList } from './components/RoundsList';
-import { HandicapChart } from './components/HandicapChart';
-import { WhatIfCard } from './components/WhatIfCard';
-import {
-  calculateHandicapIndex,
-  generateHandicapHistory,
-} from './utils/handicapCalculator';
-import { apiService } from './services/api';
-import { Trophy, AlertCircle } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
+import { PlusCircle, Trophy, Target, Settings, MapPin, Calendar, Trophy as TrophyIcon } from 'lucide-react';
+import type { GolfRound, HandicapHistory } from './types';
+import { calculateDifferential, calculateHandicapIndex } from './utils/handicapCalculator';
+import { api } from './services/api';
 
-function App() {
+export function App() {
   const [rounds, setRounds] = useState<GolfRound[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [handicap, setHandicap] = useState<number>(28.0);
+  const [history, setHistory] = useState<HandicapHistory[]>([]);
 
-  // Load rounds on startup
-  useEffect(() => {
-    loadRounds();
-  }, []);
-
-  const loadRounds = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await apiService.getRounds();
-      setRounds(data);
-    } catch (err) {
-      console.error('Failed to load rounds:', err);
-      setError('Failed to load rounds. Make sure the backend server is running.');
-    } finally {
-      setLoading(false);
-    }
+  const handleAddRound = (round: GolfRound) => {
+    setRounds(prev => [round, ...prev]);
+    
+    // Update handicap
+    const newHistory = [...history, {
+      date: round.date,
+      handicap,
+      roundsPlayed: rounds.length + 1
+    }];
+    setHistory(newHistory);
   };
 
-  const handleAddRound = async (round: GolfRound) => {
-    try {
-      setError(null);
-      const newRound = await apiService.createRound(round);
-      setRounds([...rounds, newRound]);
-    } catch (err) {
-      console.error('Failed to add round:', err);
-      setError('Failed to add round');
-    }
+  const handleDeleteRound = (id: string) => {
+    setRounds(prev => prev.filter(r => r.id !== id));
   };
 
-  const handleDeleteRound = async (id: string) => {
-    try {
-      setError(null);
-      await apiService.deleteRound(id);
-      setRounds(rounds.filter(round => round.id !== id));
-    } catch (err) {
-      console.error('Failed to delete round:', err);
-      setError('Failed to delete round');
-    }
+  // Get best 10 of last 20 scores for handicap calculation
+  const calculateCurrentHandicap = () => {
+    const recentRounds = rounds.slice(0, 20);
+    return calculateHandicapIndex(recentRounds);
   };
-
-  const currentHandicap = calculateHandicapIndex(rounds);
-  const history = generateHandicapHistory(rounds);
-  const previousHandicap = history.length > 1 ? history[history.length - 2].handicap : null;
-  const officialRounds = rounds.filter(r => r.roundType === 'official');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass-dark shadow-luxury border-b-2 border-gray-200/60 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
-          <div className="flex items-center gap-4 sm:gap-5">
-            <div className="p-3 sm:p-3.5 bg-gradient-to-br from-golf-green-500 via-golf-green-600 to-golf-green-700 rounded-2xl shadow-glow-green hover:scale-110 transition-transform duration-300 animate-float">
-              <Trophy className="text-white" size={32} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 truncate tracking-tight">Golf Handicap Tracker</h1>
-              <p className="text-gray-600 text-sm sm:text-base mt-1 sm:mt-1.5 hidden sm:block font-medium">Track your golf game development with precision</p>
-            </div>
+    <div className="min-h-screen course-bg-1">
+      {/* Subtle golf ball dimple pattern overlay */}
+      <div className="fixed inset-0 golf-dimple-pattern pointer-events-none" />
+      
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header with golf theme */}
+        <header className="text-center mb-12">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Trophy className="text-golf-green-700 w-10 h-10 animate-float" />
+            <h1 className="text-5xl sm:text-6xl font-black bg-gradient-text tracking-tight">
+              Golf Handicap Tracker
+            </h1>
+            <Trophy className="text-golf-green-700 w-10 h-10 animate-float" style={{ animationDelay: '0.2s' }} />
           </div>
-        </div>
-      </header>
+          <p className="text-xl text-gray-700 font-semibold">Master Your Game, Track Your Progress</p>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-        {/* Error Message */}
-        {error && (
-          <div className="mb-8 glass-dark border-3 border-red-400 rounded-3xl p-5 sm:p-6 flex items-start gap-4 animate-slide-up shadow-luxury bg-red-50/50">
-            <div className="p-2 bg-red-100 rounded-xl">
-              <AlertCircle className="text-red-600 flex-shrink-0" size={26} />
+        <!-- Current Handicap Display -->
+        <section className="mb-12">
+          <div className="glass-dark rounded-3xl shadow-luxury p-8 sm:p-12 border-2 border-golf-green-500/30 course-bg-2 text-center">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <Target className="text-golf-gold-600 w-8 h-8" />
+              <h2 className="text-2xl sm:text-3xl font-black text-gray-800">Current Handicap Index</h2>
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-red-900 font-black text-base sm:text-lg tracking-tight">Error</h3>
-              <p className="text-red-700 text-sm sm:text-base mt-2 font-medium">{error}</p>
-            </div>
-            <button
-              onClick={() => setError(null)}
-              className="text-red-600 hover:text-red-800 font-bold text-2xl hover:bg-red-200 rounded-xl p-2 transition-all flex-shrink-0 hover:scale-110"
-              aria-label="Close error"
-            >
-              ✕
-            </button>
-          </div>
-        )}
+            
+            <div className="relative">
+              {/* Golf ball background effect */}
+              <div className="absolute inset-0 golf-ball opacity-20" style={{ 
+                maskImage: 'radial-gradient(circle at 50% 50%, white, transparent)',
+                WebkitMaskImage: 'radial-gradient(circle at 50% 50%, white, transparent)'
+              }} />
+              
+              <div className="relative inline-block">
+                <div className="text-7xl sm:text-9xl font-black bg-gradient-gold-accent text-transparent bg-clip-text">
+                  {handicap.toFixed(1)}
+                </div>
+                <div className="text-xl sm:text-2xl text-golf-green-700 font-bold mt-2">
+                  {handicap < 10 ? 'Scratch Player' : 
+                   handicap < 18 ? 'Low Handicap' : 
+                   handicap < 25 ? 'Mid Handicap' : 'High Handicap'}
+                </div>
+              </div>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="glass-dark rounded-3xl shadow-luxury p-16 sm:p-20 text-center animate-fade-in border-2 border-gray-200/60">
-            <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24">
-              <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-              <div className="absolute inset-0 rounded-full border-4 border-t-golf-green-600 border-r-golf-green-400 border-b-transparent border-l-transparent animate-spin"></div>
-            </div>
-            <p className="text-gray-700 mt-8 text-lg sm:text-xl font-bold tracking-tight">Loading your golf data...</p>
-          </div>
-        ) : (
-          <div className="space-y-6 sm:space-y-8">
-            {/* Handicap Card */}
-            <HandicapCard
-              currentHandicap={currentHandicap}
-              previousHandicap={previousHandicap}
-              roundsPlayed={officialRounds.length}
-            />
-
-            {/* What-If Card */}
-            <WhatIfCard allRounds={rounds} currentHandicap={currentHandicap} />
-
-            {/* Chart */}
-            {history.length > 0 && <HandicapChart history={history} />}
-
-            {/* Add Round Form */}
-            <RoundForm onAddRound={handleAddRound} />
-
-            {/* Rounds List */}
-            <RoundsList rounds={rounds} onDeleteRound={handleDeleteRound} />
-          </div>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="mt-16 sm:mt-20 py-10 sm:py-12 border-t-2 border-gray-200/60 glass-dark">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4">
-            <p className="text-gray-800 text-base sm:text-lg font-bold tracking-tight">
-              Handicap calculation based on World Handicap System (WHS)
-            </p>
-            <p className="text-gray-600 text-sm sm:text-base font-medium">
-              Data stored server-side in SQLite database
-            </p>
-            <div className="pt-4">
-              <div className="inline-block px-4 py-2 bg-gradient-to-r from-golf-green-600 to-golf-green-700 text-white rounded-full text-xs font-bold shadow-soft">
-                Updated 2026
+              <div className="mt-8 flex items-center justify-center gap-8">
+                <div className="text-center">
+                  <div className="text-3xl sm:text-4xl font-black text-golf-green-700">
+                    {rounds.filter(r => r.roundType === 'official').length}
+                  </div>
+                  <div className="text-sm text-gray-600 font-semibold">Official Rounds</div>
+                </div>
+                <div className="w-px h-12 bg-gray-300" />
+                <div className="text-center">
+                  <div className="text-3xl sm:text-4xl font-black text-golf-blue-600">
+                    {rounds.filter(r => r.roundType === 'training').length}
+                  </div>
+                  <div className="text-sm text-gray-600 font-semibold">Training Rounds</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        <!-- Add New Round -->
+        <section className="mb-12">
+          <div className="glass-dark rounded-3xl shadow-luxury p-6 sm:p-8 border-2 border-gray-200/60 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <PlusCircle className="text-golf-green-600 w-6 h-6" />
+              <h2 className="text-2xl sm:text-3xl font-black text-gray-800">Add Golf Round</h2>
+            </div>
+            
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                    📅 Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-golf-green-500/20 focus:border-golf-green-500 bg-white/90"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                    🏌️ Course Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Pebble Beach Golf Links"
+                    className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-golf-green-500/20 focus:border-golf-green-500 bg-white/90"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                    🎯 Score
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="27"
+                    max="130"
+                    placeholder="e.g. 85"
+                    className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-golf-green-500/20 focus:border-golf-green-500 bg-white/90"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <label className="flex items-center space-x-2 p-4 bg-golf-green-50 rounded-xl cursor-pointer hover:bg-golf-green-100 transition-colors border-2 border-transparent hover:border-golf-green-300">
+                  <input
+                    type="radio"
+                    name="roundType"
+                    value="official"
+                    defaultChecked
+                    className="w-5 h-5 text-golf-green-600"
+                  />
+                  <span className="font-semibold text-gray-800">Official Round</span>
+                </label>
+                <label className="flex items-center space-x-2 p-4 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors border-2 border-transparent hover:border-blue-200">
+                  <input
+                    type="radio"
+                    name="roundType"
+                    value="training"
+                    className="w-5 h-5 text-blue-600"
+                  />
+                  <span className="font-semibold text-gray-800">Training Round</span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-golf-green-600 to-golf-green-700 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-golf-green-700 hover:to-golf-green-800 transition-all shadow-glow-green"
+              >
+                Add Round
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Rounds List -->
+        <section>
+          <div className="glass-dark rounded-3xl shadow-luxury p-6 sm:p-8 border-2 border-gray-200/60">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Trophy className="text-golf-green-600 w-6 h-6" />
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-800">Recent Rounds</h2>
+              </div>
+              <div className="px-4 py-2 bg-gradient-to-r from-golf-green-600 to-golf-green-700 text-white rounded-full font-black">
+                {rounds.length} Rounds
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {rounds.slice(0, 10).map((round, index) => (
+                <div
+                  key={round.id || index}
+                  className="glass-dark rounded-2xl p-5 border-2 border-gray-200 hover:border-golf-green-300 transition-all"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 sm:gap-4 mb-3">
+                        <MapPin className="text-golf-green-600 w-4 h-4 flex-shrink-0" />
+                        <h3 className="text-lg font-bold text-gray-800 truncate">
+                          {round.courseName}
+                        </h3>
+                      </div>
+                      
+                      <div className="flex items-center gap-6 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{round.date}</span>
+                        </div>
+                        <div className="font-bold text-golf-green-700 text-lg">
+                          Score: {round.score}
+                        </div>
+                        <div className="font-bold text-golf-gold-600 text-lg">
+                          Diff: {round.differentialScore?.toFixed(1)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteRound(round.id || index)}
+                      className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {rounds.length === 0 && (
+                <div className="text-center py-12 text-gray-600">
+                  <Trophy className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg font-semibold">No rounds yet. Start tracking your game!</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

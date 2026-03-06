@@ -1,5 +1,6 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const sanitizeHtml = require('sanitize-html');
 
 // Database path (persistent in data directory)
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../data/golf-handicap.db');
@@ -79,7 +80,19 @@ const statements = {
   `)
 };
 
+function sanitizeInput(input) {
+  if (typeof input === 'string') {
+    return sanitizeHtml(input, {
+      allowedTags: [],      // Strip all HTML tags
+      allowedAttributes: {}, // Strip all attributes
+      disallowedTagsMode: 'discard'
+    });
+  }
+  return input;
+}
+
 module.exports = {
   db,
-  statements
+  statements,
+  sanitizeInput
 };

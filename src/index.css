@@ -138,4 +138,58 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  
+  /* Golf Ball Design Elements */
+  .golf-ball {
+    background-size: 60px 60px;
+    mask-size: 60px 60px;
+    -webkit-mask-size: 60px 60px;
+    mask-image: radial-gradient(circle at 30% 30%, transparent 4px, white 5px),
+                radial-gradient(circle at 70% 20%, transparent 3px, white 4px),
+                radial-gradient(circle at 80% 60%, transparent 4px, white 5px),
+                radial-gradient(circle at 40% 70%, transparent 3px, white 4px),
+                radial-gradient(circle at 60% 80%, transparent 4px, white 5px),
+                radial-gradient(circle at 20% 50%, transparent 3px, white 4px),
+                radial-gradient(circle at 90% 40%, transparent 3px, white 4px),
+                radial-gradient(circle at 50% 35%, transparent 4px, white 5px);
+    opacity: 0.05;
+    pointer-events: none;
+  }
+  
+  /* Classic golf ball dimple pattern */
+  .golf-dimple-pattern {
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3) 1px, transparent 1px),
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 1px, transparent 1px),
+      radial-gradient(circle at 70% 20%, rgba(255,255,255,0.2) 1px, transparent 1px),
+      radial-gradient(circle at 80% 60%, rgba(255,255,255,0.2) 1px, transparent 1px),
+      radial-gradient(circle at 40% 70%, rgba(255,255,255,0.2) 1px, transparent 1px),
+      radial-gradient(circle at 60% 80%, rgba(255,255,255,0.2) 1px, transparent 1px),
+      radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 1px, transparent 1px),
+      radial-gradient(circle at 90% 40%, rgba(255,255,255,0.2) 1px, transparent 1px);
+    background-size: 20px 20px, 20px 20px, 15px 15px, 15px 15px, 15px 15px, 15px 15px, 15px 15px, 15px 15px;
+    background-repeat: repeat;
+  }
+
+  /* Course backgrounds (subtle, not distracting) */
+  .course-bg-1 {
+    background-image: linear-gradient(rgba(22, 163, 74, 0.03), rgba(22, 163, 74, 0.03)),
+                      linear-gradient(135deg, #16a34a, #15803d);
+    background-size: cover, cover;
+    background-blend-mode: overlay;
+  }
+
+  .course-bg-2 {
+    background-image: linear-gradient(rgba(153, 246, 228, 0.08), rgba(153, 246, 228, 0.08)),
+                      linear-gradient(135deg, #16a34a, #064e3b);
+    background-size: cover, cover;
+    background-blend-mode: overlay;
+  }
+
+  .course-bg-3 {
+    background-image: linear-gradient(rgba(244, 240, 240, 0.1), rgba(244, 240, 240, 0.1)),
+                      linear-gradient(135deg, #22c55e, #166534);
+    background-size: cover, cover;
+    background-blend-mode: overlay;
+  }
 }

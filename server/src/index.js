@@ -1,17 +1,17 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { statements } = require('./database');
+const { statements, sanitizeInput } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost';
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: CORS_ORIGIN,
   credentials: true
 }));
 app.use(express.json());
@@ -124,6 +124,11 @@ app.post('/api/rounds', (req, res) => {
       });
     }
 
+    // Sanitize text fields (notes can have user content)
+    if (notes) {
+      notes = sanitizeInput(notes);
+    }
+
     // Calculate differential
     const differential = (113 / slopeRating) * (score - courseRating);
     const roundedDifferential = Math.round(differential * 10) / 10;
@@ -181,6 +186,11 @@ app.put('/api/rounds/:id', (req, res) => {
     const existing = statements.getRoundById.get(req.params.id);
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Round not found' });
+    }
+
+    // Sanitize text fields (notes can have user content)
+    if (notes) {
+      notes = sanitizeInput(notes);
     }
 
     // Calculate differential

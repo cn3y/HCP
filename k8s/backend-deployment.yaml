@@ -36,7 +36,10 @@ spec:
         - name: DB_PATH
           value: "/app/data/golf-handicap.db"
         - name: CORS_ORIGIN
-          value: "*"
+          valueFrom:
+            secretKeyRef:
+              name: golf-handicap-config
+              key: cors-origin
         - name: NODE_ENV
           value: "production"
         volumeMounts:

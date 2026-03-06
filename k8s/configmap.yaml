@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: golf-handicap-config
+  labels:
+    app: golf-handicap-tracker
+data:
+  cors-origin: "https://nepali-ney.home"  # Update this to your domain
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: golf-handicap-config
+  labels:
+    app: golf-handicap-tracker
+type: Opaque
+stringData:
+  cors-origin: "https://nepali-ney.home"  # Update this to your domain
