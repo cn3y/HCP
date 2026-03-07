@@ -305,7 +305,7 @@ export function App() {
 
             <div className="space-y-4">
               {rounds.length > 0 ? (
-                rounds.slice(0, 10).map((round, index) => (
+                rounds.slice(0, 10).map((round) => (
                   <div
                     key={round.id}
                     className="glass-dark rounded-2xl p-5 border-2 border-gray-200 hover:border-golf-green-300 transition-all"

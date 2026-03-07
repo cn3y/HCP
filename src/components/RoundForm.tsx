@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { PlusCircle, MapPin, Trophy, Calendar } from 'lucide-react';
-import type { GolfRound } from '../types';
+import { PlusCircle, MapPin, Trophy, Calendar, Flag } from 'lucide-react';
+import type { GolfRound, RoundFormat } from '../types';
 
 interface RoundFormProps {
   onAddRound: (round: GolfRound) => void;
@@ -15,6 +15,7 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
     slopeRating: '113',
     score: '',
     par: '72',
+    holes: '18' as RoundFormat,
     roundType: 'official' as 'official' | 'training',
     notes: '',
   });
@@ -30,6 +31,7 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
       slopeRating: parseInt(formData.slopeRating),
       score: parseInt(formData.score),
       par: parseInt(formData.par),
+      holes: formData.holes,
       roundType: formData.roundType,
       notes: formData.notes || undefined,
     };
@@ -42,6 +44,7 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
       slopeRating: '113',
       score: '',
       par: '72',
+      holes: '18',
       roundType: 'official',
       notes: '',
     });
@@ -111,7 +114,7 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
 
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-            🎯 Course Rating
+            Course Rating
           </label>
           <input
             type="number"
@@ -126,7 +129,7 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
 
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-            📊 Slope Rating
+            Slope Rating
           </label>
           <input
             type="number"
@@ -140,7 +143,7 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
 
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-            ⛳ Score
+            Score
           </label>
           <input
             type="number"
@@ -168,6 +171,20 @@ export function RoundForm({ onAddRound }: RoundFormProps) {
             onChange={(e) => setFormData({ ...formData, par: e.target.value })}
             className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-golf-green-500/20 focus:border-golf-green-500 transition-all bg-white/90 hover:bg-white"
           />
+        </div>
+
+        <div>
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+            <Flag className="inline w-4 h-4 mr-1" /> Holes
+          </label>
+          <select
+            value={formData.holes}
+            onChange={(e) => setFormData({ ...formData, holes: e.target.value as RoundFormat })}
+            className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-golf-green-500/20 focus:border-golf-green-500 transition-all bg-white/90 hover:bg-white"
+          >
+            <option value="9">9 holes</option>
+            <option value="18">18 holes</option>
+          </select>
         </div>
       </div>
 
