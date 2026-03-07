@@ -73,6 +73,10 @@ npm install
 # Create .env file
 cp .env.example .env
 
+# Configure database (SQLite or PostgreSQL)
+# DB_TYPE=sqlite (default)
+# DB_TYPE=postgres for PostgreSQL
+
 # Start backend server
 npm start
 ```
@@ -91,6 +95,38 @@ npm run dev
 # Create production build
 npm run build
 ```
+
+### PostgreSQL Setup
+
+For PostgreSQL database support:
+
+```bash
+# Create .env file
+cp .env.example .env
+
+# Set database type to PostgreSQL
+DB_TYPE=postgres
+
+# Configure PostgreSQL connection (Option 1: individual vars)
+PG_HOST=localhost
+PG_PORT=5432
+PG_USER=golf
+PG_PASSWORD=your_password
+PG_DATABASE=golf_handicap
+
+# Or Option 2: connection string
+# DATABASE_URL=postgresql://user:password@host:5432/database
+
+# Initialize database (creates tables if not exist)
+npm run init-db
+
+# Start backend server
+npm start
+```
+
+**Database Schema:**
+- `players` table with `handicap_index`, `start_handicap`, `birth_date`
+- `rounds` table with `date`, `course_name`, `course_rating`, `slope_rating`, `score`, `par`, `holes`, `round_type`, `differential_score`, `notes`
 
 ## Usage
 
