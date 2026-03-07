@@ -31,6 +31,101 @@ app.get('/health', (req, res) => {
 
 // API Routes
 
+// GET /api/players - Fetch player profile
+app.get('/api/players', (req, res) => {
+  try {
+    const players = statements.getPlayers.all();
+    res.json({ success: true, data: players });
+  } catch (error) {
+    console.error('Error fetching players:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch players' });
+  }
+});
+
+// POST /api/players - Create or update player profile
+app.post('/api/players', (req, res) => {
+  try {
+    const { name, handicapIndex, startHandicap, birthDate } = req.body;
+
+    if (!name || handicapIndex === undefined || startHandicap === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: name, handicapIndex, startHandicap'
+      });
+    }
+
+    // Sanitize name
+    const sanitizedName = sanitizeInput(name);
+
+    // Save player
+    statements.createPlayer.run(
+      sanitizedName,
+      parseFloat(handicapIndex),
+      parseFloat(startHandicap),
+      birthDate || null
+    );
+
+    const player = statements.getPlayerByName.get(sanitizedName);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: player.id,
+        name: player.name,
+        handicapIndex: player.handicap_index,
+        startHandicap: player.start_handicap,
+        birthDate: player.birth_date,
+        createdAt: player.created_at,
+        updatedAt: player.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error creating/updating player:', error);
+    res.status(500).json({ success: false, error: 'Failed to create/update player' });
+  }
+});
+
+// PUT /api/players/:name - Update player profile
+app.put('/api/players/:name', (req, res) => {
+  try {
+    const { name } = req.params;
+    const { handicapIndex, startHandicap, birthDate } = req.body;
+
+    const existing = statements.getPlayerByName.get(name);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Player not found' });
+    }
+
+    // Sanitize name
+    const sanitizedName = sanitizeInput(name);
+
+    statements.updatePlayer.run(
+      parseFloat(handicapIndex),
+      parseFloat(startHandicap),
+      birthDate || null,
+      sanitizedName
+    );
+
+    const player = statements.getPlayerByName.get(sanitizedName);
+
+    res.json({
+      success: true,
+      data: {
+        id: player.id,
+        name: player.name,
+        handicapIndex: player.handicap_index,
+        startHandicap: player.start_handicap,
+        birthDate: player.birth_date,
+        createdAt: player.created_at,
+        updatedAt: player.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error updating player:', error);
+    res.status(500).json({ success: false, error: 'Failed to update player' });
+  }
+});
+
 // GET /api/rounds - Fetch all rounds (with optional type filter)
 app.get('/api/rounds', (req, res) => {
   try {
@@ -52,6 +147,7 @@ app.get('/api/rounds', (req, res) => {
       slopeRating: round.slope_rating,
       score: round.score,
       par: round.par,
+      holes: round.holes,
       roundType: round.round_type,
       differentialScore: round.differential_score,
       notes: round.notes
@@ -83,6 +179,7 @@ app.get('/api/rounds/:id', (req, res) => {
         slopeRating: round.slope_rating,
         score: round.score,
         par: round.par,
+        holes: round.holes,
         roundType: round.round_type,
         differentialScore: round.differential_score,
         notes: round.notes
@@ -105,6 +202,7 @@ app.post('/api/rounds', (req, res) => {
       slopeRating,
       score,
       par,
+      holes = '18',
       roundType = 'official',
       notes = null
     } = req.body;
@@ -124,13 +222,23 @@ app.post('/api/rounds', (req, res) => {
       });
     }
 
+    if (!['9', '18'].includes(holes)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid holes. Must be "9" or "18"'
+      });
+    }
+
     // Sanitize text fields (notes can have user content)
     if (notes) {
       notes = sanitizeInput(notes);
     }
 
-    // Calculate differential
-    const differential = (113 / slopeRating) * (score - courseRating);
+    // Calculate differential (adjust for 9-hole rounds)
+    let differential = (113 / slopeRating) * (score - courseRating);
+    if (holes === '9') {
+      differential *= 2;
+    }
     const roundedDifferential = Math.round(differential * 10) / 10;
 
     // Save round
@@ -142,6 +250,7 @@ app.post('/api/rounds', (req, res) => {
       slopeRating,
       score,
       par,
+      holes,
       roundType,
       roundedDifferential,
       notes
@@ -157,6 +266,7 @@ app.post('/api/rounds', (req, res) => {
         slopeRating,
         score,
         par,
+        holes,
         roundType,
         differentialScore: roundedDifferential,
         notes
@@ -178,6 +288,7 @@ app.put('/api/rounds/:id', (req, res) => {
       slopeRating,
       score,
       par,
+      holes = '18',
       roundType = 'official',
       notes = null
     } = req.body;
@@ -193,8 +304,11 @@ app.put('/api/rounds/:id', (req, res) => {
       notes = sanitizeInput(notes);
     }
 
-    // Calculate differential
-    const differential = (113 / slopeRating) * (score - courseRating);
+    // Calculate differential (adjust for 9-hole rounds)
+    let differential = (113 / slopeRating) * (score - courseRating);
+    if (holes === '9') {
+      differential *= 2;
+    }
     const roundedDifferential = Math.round(differential * 10) / 10;
 
     // Update round
@@ -205,6 +319,7 @@ app.put('/api/rounds/:id', (req, res) => {
       slopeRating,
       score,
       par,
+      holes,
       roundType,
       roundedDifferential,
       notes,
@@ -221,6 +336,7 @@ app.put('/api/rounds/:id', (req, res) => {
         slopeRating,
         score,
         par,
+        holes,
         roundType,
         differentialScore: roundedDifferential,
         notes

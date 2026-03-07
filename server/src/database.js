@@ -20,6 +20,17 @@ db.pragma('journal_mode = WAL');
 
 // Create tables immediately on module load
 db.exec(`
+  CREATE TABLE IF NOT EXISTS players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    handicap_index REAL NOT NULL DEFAULT 28.0,
+    start_handicap REAL NOT NULL DEFAULT 28.0,
+    birth_date TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(name)
+  );
+
   CREATE TABLE IF NOT EXISTS rounds (
     id TEXT PRIMARY KEY,
     date TEXT NOT NULL,
@@ -28,6 +39,7 @@ db.exec(`
     slope_rating INTEGER NOT NULL,
     score INTEGER NOT NULL,
     par INTEGER NOT NULL,
+    holes TEXT NOT NULL DEFAULT '18' CHECK(holes IN ('9', '18')),
     round_type TEXT NOT NULL CHECK(round_type IN ('official', 'training')),
     differential_score REAL,
     notes TEXT,
@@ -44,29 +56,44 @@ console.log('✅ Database initialized successfully');
 
 // Prepared statements for better performance
 const statements = {
+  // Players
+  getPlayers: db.prepare('SELECT * FROM players'),
+  getPlayerByName: db.prepare('SELECT * FROM players WHERE name = ?'),
+  createPlayer: db.prepare(`
+    INSERT INTO players (name, handicap_index, start_handicap, birth_date)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(name) DO UPDATE SET
+      handicap_index = excluded.handicap_index,
+      start_handicap = excluded.start_handicap,
+      birth_date = excluded.birth_date,
+      updated_at = CURRENT_TIMESTAMP
+  `),
+  updatePlayer: db.prepare(`
+    UPDATE players SET
+      handicap_index = ?, start_handicap = ?, birth_date = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE name = ?
+  `),
+
+  // Rounds
   getAllRounds: db.prepare('SELECT * FROM rounds ORDER BY date DESC'),
-
   getRoundsByType: db.prepare('SELECT * FROM rounds WHERE round_type = ? ORDER BY date DESC'),
-
   getRoundById: db.prepare('SELECT * FROM rounds WHERE id = ?'),
-
   createRound: db.prepare(`
     INSERT INTO rounds (
       id, date, course_name, course_rating, slope_rating,
-      score, par, round_type, differential_score, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      score, par, holes, round_type, differential_score, notes
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `),
-
   updateRound: db.prepare(`
     UPDATE rounds SET
       date = ?, course_name = ?, course_rating = ?, slope_rating = ?,
-      score = ?, par = ?, round_type = ?, differential_score = ?,
+      score = ?, par = ?, holes = ?, round_type = ?, differential_score = ?,
       notes = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `),
-
   deleteRound: db.prepare('DELETE FROM rounds WHERE id = ?'),
 
+  // Statistics
   getStatistics: db.prepare(`
     SELECT
       round_type,
