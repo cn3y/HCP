@@ -1,34 +1,13 @@
-import { useState, type FormEvent } from 'react';
-import { PlusCircle, Trophy, Target, Settings, MapPin, Calendar, Trophy as TrophyIcon } from 'lucide-react';
-import type { GolfRound, HandicapHistory } from './types';
-import { calculateDifferential, calculateHandicapIndex } from './utils/handicapCalculator';
-import { api } from './services/api';
+import { useState } from 'react';
+import { PlusCircle, Trophy, Target, MapPin, Calendar } from 'lucide-react';
+import type { GolfRound } from './types';
 
 export function App() {
   const [rounds, setRounds] = useState<GolfRound[]>([]);
-  const [handicap, setHandicap] = useState<number>(28.0);
-  const [history, setHistory] = useState<HandicapHistory[]>([]);
+  const [handicap] = useState<number>(28.0);
 
-  const handleAddRound = (round: GolfRound) => {
-    setRounds(prev => [round, ...prev]);
-    
-    // Update handicap
-    const newHistory = [...history, {
-      date: round.date,
-      handicap,
-      roundsPlayed: rounds.length + 1
-    }];
-    setHistory(newHistory);
-  };
-
-  const handleDeleteRound = (id: string) => {
+  const handleDeleteRound = (id: string | number) => {
     setRounds(prev => prev.filter(r => r.id !== id));
-  };
-
-  // Get best 10 of last 20 scores for handicap calculation
-  const calculateCurrentHandicap = () => {
-    const recentRounds = rounds.slice(0, 20);
-    return calculateHandicapIndex(recentRounds);
   };
 
   return (
@@ -49,7 +28,7 @@ export function App() {
           <p className="text-xl text-gray-700 font-semibold">Master Your Game, Track Your Progress</p>
         </header>
 
-        <!-- Current Handicap Display -->
+        {/* Current Handicap Display */}
         <section className="mb-12">
           <div className="glass-dark rounded-3xl shadow-luxury p-8 sm:p-12 border-2 border-golf-green-500/30 course-bg-2 text-center">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -94,7 +73,7 @@ export function App() {
           </div>
         </section>
 
-        <!-- Add New Round -->
+        {/* Add New Round */}
         <section className="mb-12">
           <div className="glass-dark rounded-3xl shadow-luxury p-6 sm:p-8 border-2 border-gray-200/60 mb-6">
             <div className="flex items-center gap-3 mb-4">
@@ -174,7 +153,7 @@ export function App() {
           </div>
         </section>
 
-        <!-- Rounds List -->
+        {/* Rounds List */}
         <section>
           <div className="glass-dark rounded-3xl shadow-luxury p-6 sm:p-8 border-2 border-gray-200/60">
             <div className="flex items-center justify-between mb-6">
