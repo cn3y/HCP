@@ -1,0 +1,15 @@
+[Unit]
+Description=MLX-LM Server (OpenAI-compatible API)
+After=network.target
+
+[Service]
+Type=simple
+User=chris
+WorkingDirectory=/Users/chris/.openclaw/workspace/hcp-temp
+ExecStart=/opt/homebrew/bin/mlx-lm serve --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=10
+Environment="PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+[Install]
+WantedBy=multi-user.target
