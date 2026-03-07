@@ -1,12 +1,22 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
+
+# Install build dependencies for native modules (pg)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including build dependencies for native modules)
+RUN npm ci --only=production || npm install --only=production
+
+# Remove build dependencies to reduce image size
+RUN apt-get purge -y python3 make g++ && apt-get autoremove -y
 
 # Copy source code
 COPY src/ ./src/
