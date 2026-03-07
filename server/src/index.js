@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { statements, sanitizeInput } = require('./database');
+const { statements, sanitizeInput } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
