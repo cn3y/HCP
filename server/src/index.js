@@ -237,21 +237,11 @@ app.post('/api/rounds', (req, res) => {
     // Calculate differential
     let differential = (113 / slopeRating) * (score - courseRating);
     
-    // For 9-hole rounds, convert to 18-hole differential using WHS formula
+    // For 9-hole rounds, convert to 18-hole differential using DGV formula
     if (holes === '9') {
-      // Get player's current handicap index for expected score calculation
-      const players = statements.getPlayers.all();
-      const player = players.length > 0 ? players[0] : null;
-      
-      if (player && player.handicap_index) {
-        // Official WHS: Expected 9-hole Score = (0.52 × Handicap_Index) + 1.2
-        // Since we're calculating differential, we use: Expected 9-hole Differential = 0.52 × Handicap_Index + 1.2
-        const expected9HoleDifferential = (0.52 * player.handicap_index) + 1.2;
-        differential = differential + expected9HoleDifferential;
-      } else {
-        // Fallback: double the differential if no player profile exists
-        differential *= 2;
-      }
+      // DGV-specific: Double the differential for 9-hole rounds
+      // DGV uses: 18-hole differential = 9-hole differential × 2
+      differential *= 2;
     }
     
     const roundedDifferential = Math.round(differential * 10) / 10;
@@ -322,21 +312,11 @@ app.put('/api/rounds/:id', (req, res) => {
     // Calculate differential
     let differential = (113 / slopeRating) * (score - courseRating);
     
-    // For 9-hole rounds, convert to 18-hole differential using WHS formula
+    // For 9-hole rounds, convert to 18-hole differential using DGV formula
     if (holes === '9') {
-      // Get player's current handicap index for expected score calculation
-      const players = statements.getPlayers.all();
-      const player = players.length > 0 ? players[0] : null;
-      
-      if (player && player.handicap_index) {
-        // Official WHS: Expected 9-hole Score = (0.52 × Handicap_Index) + 1.2
-        // Since we're calculating differential, we use: Expected 9-hole Differential = 0.52 × Handicap_Index + 1.2
-        const expected9HoleDifferential = (0.52 * player.handicap_index) + 1.2;
-        differential = differential + expected9HoleDifferential;
-      } else {
-        // Fallback: double the differential if no player profile exists
-        differential *= 2;
-      }
+      // DGV-specific: Double the differential for 9-hole rounds
+      // DGV uses: 18-hole differential = 9-hole differential × 2
+      differential *= 2;
     }
     
     const roundedDifferential = Math.round(differential * 10) / 10;

@@ -22,19 +22,13 @@ export function App() {
     notes: '',
   });
 
-  const calculateDifferential = (score: number, courseRating: number, slopeRating: number, holes: RoundFormat, handicapIndex?: number): number => {
+  const calculateDifferential = (score: number, courseRating: number, slopeRating: number, holes: RoundFormat): number => {
     let rawDiff = (113 / slopeRating) * (score - courseRating);
     
     if (holes === '9') {
-      // WHS 9-hole to 18-hole conversion
-      if (handicapIndex !== undefined && handicapIndex > 0) {
-        // Expected 9-hole Differential = (0.52 × Handicap_Index) + 1.2
-        const expected9HoleDifferential = (0.52 * handicapIndex) + 1.2;
-        rawDiff = rawDiff + expected9HoleDifferential;
-      } else {
-        // Fallback: double the differential if no handicap index
-        rawDiff *= 2;
-      }
+      // DGV-specific: Double the differential for 9-hole rounds
+      // DGV uses: 18-hole differential = 9-hole differential × 2
+      rawDiff *= 2;
     }
     
     return Math.round(rawDiff * 10) / 10;
@@ -54,7 +48,7 @@ export function App() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const differential = calculateDifferential(formData.score, formData.courseRating, formData.slopeRating, formData.holes, playerProfile.handicapIndex);
+    const differential = calculateDifferential(formData.score, formData.courseRating, formData.slopeRating, formData.holes);
     
     const newRound: GolfRound = {
       id: Date.now().toString(),
