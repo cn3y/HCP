@@ -22,7 +22,7 @@ spec:
       containers:
       - name: backend
         # GitHub Container Registry (GHCR) image
-        image: ghcr.io/cn3y/hcp/backend:sha-8d2e1f5  # Update this tag to latest sha
+        image: ghcr.io/cn3y/hcp/backend:latest  # Update this tag to latest sha
         # For specific version: ghcr.io/cn3y/hcp/backend:1.2.3
         # For local build: your-registry/golf-handicap-backend:latest
         imagePullPolicy: Always
